@@ -15,9 +15,6 @@ import 'package:zego_uikit/src/services/services.dart';
 
 /// layout config of gallery
 class ZegoLayoutGalleryConfig extends ZegoLayout {
-  /// true: show audio video view only open camera or microphone
-  bool showOnlyOnAudioVideo;
-
   /// whether to display rounded corners and spacing between views
   bool addBorderRadiusAndSpacingBetweenView;
 
@@ -33,7 +30,6 @@ class ZegoLayoutGalleryConfig extends ZegoLayout {
       showScreenSharingFullscreenModeToggleButtonRules;
 
   ZegoLayoutGalleryConfig({
-    this.showOnlyOnAudioVideo = false,
     this.margin = const EdgeInsets.all(2.0),
     this.addBorderRadiusAndSpacingBetweenView = true,
     this.showNewScreenSharingViewInFullscreenMode = true,
@@ -151,10 +147,7 @@ class _ZegoLayoutGalleryState extends State<ZegoLayoutGallery> {
       final layoutUser = layoutUsers.elementAt(index);
 
       /// audio video
-      if (audioVideoListUserIDs.contains(layoutUser.id) ||
-
-          /// show even if user is not publish
-          !widget.layoutConfig.showOnlyOnAudioVideo) {
+      if (audioVideoListUserIDs.contains(layoutUser.id)) {
         final audioVideoView = LayoutBuilder(builder: (context, constraints) {
           return ZegoAudioVideoView(
             user: layoutUser,
@@ -204,12 +197,10 @@ class _ZegoLayoutGalleryState extends State<ZegoLayoutGallery> {
         itemsConfig.hasScreenSharing = true;
       }
 
-      final currentItemsCount = itemsConfig.layoutItems.length +
-          screenSharingLayoutItems.length +
-
-          /// The top screen takes up two squares
-          (itemsConfig.topScreenSharing != null ? 2 : 0);
-      if (currentItemsCount >= widget.maxItemCount - 1) {
+      if ((itemsConfig.layoutItems.length +
+              screenSharingLayoutItems.length +
+              (itemsConfig.topScreenSharing != null ? 2 : 0)) >
+          widget.maxItemCount) {
         if (index != layoutUsers.length - 1) {
           lastUsers = List<ZegoUIKitUser>.from(layoutUsers.sublist(index + 1));
         }

@@ -63,30 +63,17 @@ class ZegoUIKitSignalingPluginImpl
     return ZegoSignalingPluginCore.shared.reportCallEnded(endedReason, uuid);
   }
 
-  Future<void> setAdvancedConfig(String key, String value) async {
-    await ZegoSignalingPluginCore.shared.setAdvancedConfig(key, value);
-  }
-
   /// login
   Future<bool> login({
     required String id,
     required String name,
-    String token = '',
   }) async {
-    return ZegoSignalingPluginCore.shared.login(
-      id,
-      name,
-      token: token,
-    );
+    return ZegoSignalingPluginCore.shared.login(id, name);
   }
 
   /// logout
   Future<void> logout() async {
     return ZegoSignalingPluginCore.shared.logout();
-  }
-
-  Future<bool> renewToken(String token) async {
-    return ZegoSignalingPluginCore.shared.renewToken(token);
   }
 
   /// join room

@@ -58,9 +58,9 @@ class _ZegoSwitchCameraButtonState extends State<ZegoSwitchCameraButton> {
           .getUseFrontFacingCameraStateNotifier(ZegoUIKit().getLocalUser().id),
       builder: (context, isFrontFacing, _) {
         return GestureDetector(
-          onTap: () async {
+          onTap: () {
             final targetState = !isFrontFacing;
-            await ZegoUIKit().useFrontFacingCamera(targetState);
+            ZegoUIKit().useFrontFacingCamera(targetState);
 
             if (widget.onPressed != null) {
               widget.onPressed!(targetState);

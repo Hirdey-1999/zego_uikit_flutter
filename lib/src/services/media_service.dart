@@ -76,19 +76,16 @@ mixin ZegoMediaService {
 
   /// Set media player volume.
   ///
-  /// set [isSyncToRemote] to be true if you want to sync both the local play volume
-  /// and the publish volume, if [isSyncToRemote] is false, that will only adjust the
+  /// set [isSync] to be true if you want to sync both the local play volume
+  /// and the publish volume, if [isSync] is false, that will only adjust the
   /// local play volume.
   ///
   /// - [volume] The range is 0 ~ 100. The default is 30.
   Future<void> setMediaVolume(
     int volume, {
-    bool isSyncToRemote = false,
+    bool isSync = false,
   }) async {
-    return ZegoUIKitCore.shared.setMediaVolume(
-      volume,
-      isSyncToRemote: isSyncToRemote,
-    );
+    return ZegoUIKitCore.shared.setMediaVolume(volume, isSync: isSync);
   }
 
   int getMediaVolume() {
@@ -148,11 +145,7 @@ mixin ZegoMediaService {
     List<String>? allowedExtensions,
   }) async {
     return ZegoUIKitCore.shared.pickMediaFile(
-      allowedExtensions: allowedExtensions ??
-          [
-            ...zegoMediaVideoExtensions,
-            ...zegoMediaAudioExtensions,
-          ],
+      allowedExtensions: allowedExtensions,
     );
   }
 

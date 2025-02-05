@@ -5,40 +5,20 @@ import 'dart:async';
 import 'package:zego_uikit/src/services/services.dart';
 
 mixin ZegoUIKitCoreDataMessage {
-  var broadcastMessage = ZegoUIKitCoreDataMessageInfo();
-  var barrageMessage = ZegoUIKitCoreDataMessageInfo();
+  int localMessageId = 0;
+  List<ZegoInRoomMessage> messageList = []; // uid:user
+
+  StreamController<List<ZegoInRoomMessage>>? streamControllerMessageList;
+
+  StreamController<ZegoInRoomMessage>? streamControllerRemoteMessage;
+
+  StreamController<ZegoInRoomMessage>? streamControllerLocalMessage;
 
   void initMessage() {
     ZegoLoggerService.logInfo(
       'init message',
-      tag: 'uikit-message',
-      subTag: 'init',
+      subTag: 'core data',
     );
-
-    broadcastMessage.init();
-    barrageMessage.init();
-  }
-
-  void uninitMessage() {
-    ZegoLoggerService.logInfo(
-      'uninit message',
-      tag: 'uikit-message',
-      subTag: 'uninit',
-    );
-
-    broadcastMessage.uninit();
-    barrageMessage.uninit();
-  }
-}
-
-class ZegoUIKitCoreDataMessageInfo {
-  int localMessageId = 0;
-  List<ZegoInRoomMessage> messageList = []; // uid:user
-  StreamController<List<ZegoInRoomMessage>>? streamControllerMessageList;
-  StreamController<ZegoInRoomMessage>? streamControllerRemoteMessage;
-  StreamController<ZegoInRoomMessage>? streamControllerLocalMessage;
-
-  void init() {
     streamControllerMessageList ??=
         StreamController<List<ZegoInRoomMessage>>.broadcast();
     streamControllerRemoteMessage ??=
@@ -47,7 +27,12 @@ class ZegoUIKitCoreDataMessageInfo {
         StreamController<ZegoInRoomMessage>.broadcast();
   }
 
-  void uninit() {
+  void uninitMessage() {
+    ZegoLoggerService.logInfo(
+      'uninit message',
+      subTag: 'core data',
+    );
+
     streamControllerMessageList?.close();
     streamControllerMessageList = null;
 
@@ -56,10 +41,5 @@ class ZegoUIKitCoreDataMessageInfo {
 
     streamControllerLocalMessage?.close();
     streamControllerLocalMessage = null;
-  }
-
-  void clear() {
-    messageList.clear();
-    streamControllerMessageList?.add(List<ZegoInRoomMessage>.from(messageList));
   }
 }

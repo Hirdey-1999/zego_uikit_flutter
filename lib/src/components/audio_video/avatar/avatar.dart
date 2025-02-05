@@ -100,7 +100,7 @@ class ZegoAvatar extends StatelessWidget {
                     errorWidget: (context, url, error) {
                       ZegoLoggerService.logError(
                         '$user avatar url($url) error:$error',
-                        tag: 'uikit-component',
+                        tag: 'uikit',
                         subTag: 'avatar',
                       );
                       return circleName(context, avatarSize, user);

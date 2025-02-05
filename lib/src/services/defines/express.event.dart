@@ -1433,7 +1433,7 @@ abstract class ZegoUIKitExpressEventInterface {
   ///
   /// - [source] Callback screen capture source object.
   /// - [exceptionType] Capture source exception type.
-  void onScreenCaptureExceptionOccurred(
+  void onExceptionOccurred(
     ZegoScreenCaptureSource source,
     ZegoScreenCaptureSourceExceptionType exceptionType,
   ) {}
@@ -1447,7 +1447,7 @@ abstract class ZegoUIKitExpressEventInterface {
   /// - [source] Callback screen capture source object.
   /// - [windowState] Capture window state.
   /// - [windowRect] Capture window rect.
-  void onScreenCaptureWindowStateChanged(
+  void onWindowStateChanged(
     ZegoScreenCaptureSource source,
     ZegoScreenCaptureWindowState windowState,
     Rect windowRect,
@@ -1461,7 +1461,7 @@ abstract class ZegoUIKitExpressEventInterface {
   ///
   /// - [source] Callback screen capture source object.
   /// - [captureRect] Capture source rect.
-  void onScreenCaptureSourceRectChanged(
+  void onRectChanged(
     ZegoScreenCaptureSource source,
     Rect captureRect,
   ) {}

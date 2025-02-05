@@ -10,68 +10,43 @@ mixin ZegoUIKitCoreDataUser {
 
   final List<ZegoUIKitCoreUser> remoteUsersList = [];
 
-  StreamController<List<ZegoUIKitCoreUser>>? get userJoinStreamCtrl {
-    _userJoinStreamCtrl ??=
-        StreamController<List<ZegoUIKitCoreUser>>.broadcast();
-    return _userJoinStreamCtrl;
-  }
-
-  StreamController<List<ZegoUIKitCoreUser>>? get userLeaveStreamCtrl {
-    _userLeaveStreamCtrl ??=
-        StreamController<List<ZegoUIKitCoreUser>>.broadcast();
-    return _userLeaveStreamCtrl;
-  }
-
-  StreamController<List<ZegoUIKitCoreUser>>? get userListStreamCtrl {
-    _userListStreamCtrl ??=
-        StreamController<List<ZegoUIKitCoreUser>>.broadcast();
-    return _userListStreamCtrl;
-  }
-
-  StreamController<String>? get meRemovedFromRoomStreamCtrl {
-    _meRemovedFromRoomStreamCtrl ??= StreamController<String>.broadcast();
-    return _meRemovedFromRoomStreamCtrl;
-  }
-
-  StreamController<List<ZegoUIKitCoreUser>>? _userJoinStreamCtrl;
-  StreamController<List<ZegoUIKitCoreUser>>? _userLeaveStreamCtrl;
-  StreamController<List<ZegoUIKitCoreUser>>? _userListStreamCtrl;
-  StreamController<String>? _meRemovedFromRoomStreamCtrl;
+  StreamController<List<ZegoUIKitCoreUser>>? userJoinStreamCtrl;
+  StreamController<List<ZegoUIKitCoreUser>>? userLeaveStreamCtrl;
+  StreamController<List<ZegoUIKitCoreUser>>? userListStreamCtrl;
+  StreamController<String>? meRemovedFromRoomStreamCtrl;
 
   void initUser() {
     ZegoLoggerService.logInfo(
       'init user',
-      tag: 'uikit-user',
-      subTag: 'init',
+      subTag: 'core data',
     );
 
-    _userJoinStreamCtrl ??=
+    userJoinStreamCtrl ??=
         StreamController<List<ZegoUIKitCoreUser>>.broadcast();
-    _userLeaveStreamCtrl ??=
+    userLeaveStreamCtrl ??=
         StreamController<List<ZegoUIKitCoreUser>>.broadcast();
-    _userListStreamCtrl ??=
+    userListStreamCtrl ??=
         StreamController<List<ZegoUIKitCoreUser>>.broadcast();
-    _meRemovedFromRoomStreamCtrl ??= StreamController<String>.broadcast();
+    meRemovedFromRoomStreamCtrl ??= StreamController<String>.broadcast();
   }
 
   void uninitUser() {
     ZegoLoggerService.logInfo(
       'uninit user',
-      tag: 'uikit-user',
-      subTag: 'uninit',
+      subTag: 'core data',
     );
 
-    _userJoinStreamCtrl?.close();
-    _userJoinStreamCtrl = null;
+    userJoinStreamCtrl?.close();
+    userJoinStreamCtrl = null;
 
-    _userLeaveStreamCtrl?.close();
-    _userLeaveStreamCtrl = null;
+    userLeaveStreamCtrl?.close();
+    userLeaveStreamCtrl = null;
 
-    _userListStreamCtrl?.close();
-    _userListStreamCtrl = null;
+    userListStreamCtrl?.close();
+    userListStreamCtrl = null;
 
-    _meRemovedFromRoomStreamCtrl?.close();
-    _meRemovedFromRoomStreamCtrl = null;
+    meRemovedFromRoomStreamCtrl?.close();
+    meRemovedFromRoomStreamCtrl = null;
   }
 
   ZegoUIKitCoreUser getUser(String userID) {
@@ -87,24 +62,24 @@ mixin ZegoUIKitCoreDataUser {
 
   ZegoUIKitCoreUser login(String id, String name) {
     ZegoLoggerService.logInfo(
-      'id:"$id", name:$name',
-      tag: 'uikit-user',
-      subTag: 'login',
+      'login, id:"$id", name:$name',
+      tag: 'uikit',
+      subTag: 'core data',
     );
 
     if (id.isEmpty || name.isEmpty) {
       ZegoLoggerService.logError(
-        'params is not valid',
-        tag: 'uikit-user',
-        subTag: 'login',
+        'login params is not valid',
+        tag: 'uikit',
+        subTag: 'core data',
       );
     }
 
     if (localUser.id == id && localUser.name == name) {
       ZegoLoggerService.logWarn(
-        'user is same',
-        tag: 'uikit-user',
-        subTag: 'login',
+        'login user is same',
+        tag: 'uikit',
+        subTag: 'core data',
       );
 
       return localUser;
@@ -113,24 +88,18 @@ mixin ZegoUIKitCoreDataUser {
     if ((localUser.id.isNotEmpty && localUser.id != id) ||
         (localUser.name.isNotEmpty && localUser.name != name)) {
       ZegoLoggerService.logError(
-        'already login, and not same user, auto logout...',
-        tag: 'uikit-user',
-        subTag: 'login',
+        'login exist before, and not same, auto logout...',
+        tag: 'uikit',
+        subTag: 'core data',
       );
       logout();
     }
-
-    ZegoLoggerService.logInfo(
-      'login done',
-      tag: 'uikit-user',
-      subTag: 'login',
-    );
 
     localUser
       ..id = id
       ..name = name;
 
-    _userJoinStreamCtrl?.add([localUser]);
+    userJoinStreamCtrl?.add([localUser]);
     notifyUserListStreamControl();
 
     return localUser;
@@ -139,16 +108,16 @@ mixin ZegoUIKitCoreDataUser {
   void logout() {
     ZegoLoggerService.logInfo(
       'logout',
-      tag: 'uikit-user',
-      subTag: 'logout',
+      tag: 'uikit',
+      subTag: 'core data',
     );
 
     localUser
       ..id = ''
       ..name = '';
 
-    _userLeaveStreamCtrl?.add([localUser]);
-    _userListStreamCtrl?.add(remoteUsersList);
+    userLeaveStreamCtrl?.add([localUser]);
+    userListStreamCtrl?.add(remoteUsersList);
   }
 
   ZegoUIKitCoreUser removeUser(String uid) {
@@ -180,7 +149,7 @@ mixin ZegoUIKitCoreDataUser {
 
   void notifyUserListStreamControl() {
     final allUserList = [localUser, ...remoteUsersList];
-    _userListStreamCtrl?.add(allUserList);
+    userListStreamCtrl?.add(allUserList);
   }
 
   ZegoUIKitCoreUser getUserInMixerStream(String userID) {

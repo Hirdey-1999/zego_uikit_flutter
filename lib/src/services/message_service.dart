@@ -2,13 +2,9 @@ part of 'uikit_service.dart';
 
 mixin ZegoMessageService {
   /// send in-room message
-  Future<bool> sendInRoomMessage(
-    String message, {
-    ZegoInRoomMessageType type = ZegoInRoomMessageType.broadcastMessage,
-  }) async {
-    final resultErrorCode = type == ZegoInRoomMessageType.broadcastMessage
-        ? await ZegoUIKitCore.shared.message.sendBroadcastMessage(message)
-        : await ZegoUIKitCore.shared.message.sendBarrageMessage(message);
+  Future<bool> sendInRoomMessage(String message) async {
+    final resultErrorCode =
+        await ZegoUIKitCore.shared.message.sendBroadcastMessage(message);
 
     if (ZegoUIKitErrorCode.success != resultErrorCode) {
       ZegoUIKitCore.shared.error.errorStreamCtrl?.add(
@@ -26,14 +22,9 @@ mixin ZegoMessageService {
   }
 
   /// re-send in-room message
-  Future<bool> resendInRoomMessage(
-    ZegoInRoomMessage message, {
-    ZegoInRoomMessageType type = ZegoInRoomMessageType.broadcastMessage,
-  }) async {
-    final resultErrorCode = await ZegoUIKitCore.shared.message.resendMessage(
-      message,
-      type,
-    );
+  Future<bool> resendInRoomMessage(ZegoInRoomMessage message) async {
+    final resultErrorCode =
+        await ZegoUIKitCore.shared.message.resendInRoomMessage(message);
 
     if (ZegoUIKitErrorCode.success != resultErrorCode) {
       ZegoUIKitCore.shared.error.errorStreamCtrl?.add(
@@ -51,74 +42,26 @@ mixin ZegoMessageService {
   }
 
   /// get history messages
-  List<ZegoInRoomMessage> getInRoomMessages({
-    ZegoInRoomMessageType type = ZegoInRoomMessageType.broadcastMessage,
-  }) {
-    return type == ZegoInRoomMessageType.broadcastMessage
-        ? ZegoUIKitCore.shared.coreData.broadcastMessage.messageList
-        : ZegoUIKitCore.shared.coreData.barrageMessage.messageList;
+  List<ZegoInRoomMessage> getInRoomMessages() {
+    return ZegoUIKitCore.shared.coreData.messageList;
   }
 
   /// messages notifier
-  Stream<List<ZegoInRoomMessage>> getInRoomMessageListStream({
-    ZegoInRoomMessageType type = ZegoInRoomMessageType.broadcastMessage,
-  }) {
-    return (type == ZegoInRoomMessageType.broadcastMessage
-            ? ZegoUIKitCore.shared.coreData.broadcastMessage
-                .streamControllerMessageList?.stream
-            : ZegoUIKitCore.shared.coreData.barrageMessage
-                .streamControllerMessageList?.stream) ??
+  Stream<List<ZegoInRoomMessage>> getInRoomMessageListStream() {
+    return ZegoUIKitCore.shared.coreData.streamControllerMessageList?.stream ??
         const Stream.empty();
   }
 
   /// latest message received notifier
-  Stream<ZegoInRoomMessage> getInRoomMessageStream({
-    ZegoInRoomMessageType type = ZegoInRoomMessageType.broadcastMessage,
-  }) {
-    return (type == ZegoInRoomMessageType.broadcastMessage
-            ? ZegoUIKitCore.shared.coreData.broadcastMessage
-                .streamControllerRemoteMessage?.stream
-            : ZegoUIKitCore.shared.coreData.barrageMessage
-                .streamControllerRemoteMessage?.stream) ??
+  Stream<ZegoInRoomMessage> getInRoomMessageStream() {
+    return ZegoUIKitCore
+            .shared.coreData.streamControllerRemoteMessage?.stream ??
         const Stream.empty();
   }
 
   /// local message sent notifier
-  Stream<ZegoInRoomMessage> getInRoomLocalMessageStream({
-    ZegoInRoomMessageType type = ZegoInRoomMessageType.broadcastMessage,
-  }) {
-    return (type == ZegoInRoomMessageType.broadcastMessage
-            ? ZegoUIKitCore.shared.coreData.broadcastMessage
-                .streamControllerLocalMessage?.stream
-            : ZegoUIKitCore.shared.coreData.barrageMessage
-                .streamControllerLocalMessage?.stream) ??
+  Stream<ZegoInRoomMessage> getInRoomLocalMessageStream() {
+    return ZegoUIKitCore.shared.coreData.streamControllerLocalMessage?.stream ??
         const Stream.empty();
-  }
-
-  Future<bool> clearMessage({
-    ZegoInRoomMessageType type = ZegoInRoomMessageType.broadcastMessage,
-    bool clearRemote = true,
-  }) async {
-    ZegoUIKitCore.shared.clearLocalMessage(type);
-
-    if (clearRemote) {
-      final resultErrorCode =
-          await ZegoUIKitCore.shared.clearRemoteMessage(type);
-
-      if (ZegoUIKitErrorCode.success != resultErrorCode) {
-        ZegoUIKitCore.shared.error.errorStreamCtrl?.add(
-          ZegoUIKitError(
-            code: ZegoUIKitErrorCode.customCommandSendError,
-            message: 'remove remote message error:$resultErrorCode, '
-                '${ZegoUIKitErrorCode.expressErrorCodeDocumentTips}',
-            method: 'clearMessage',
-          ),
-        );
-      }
-
-      return ZegoErrorCode.CommonSuccess == resultErrorCode;
-    }
-
-    return true;
   }
 }

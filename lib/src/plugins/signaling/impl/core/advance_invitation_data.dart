@@ -9,7 +9,6 @@ import 'package:zego_plugin_adapter/zego_plugin_adapter.dart';
 import 'package:zego_uikit/src/plugins/signaling/impl/core/advance_invitation_protocol.dart';
 import 'package:zego_uikit/src/plugins/signaling/impl/core/core.dart';
 import 'package:zego_uikit/src/plugins/signaling/impl/core/defines.dart';
-import 'package:zego_uikit/src/plugins/signaling/impl/service/reporter.dart';
 import 'package:zego_uikit/src/services/services.dart';
 
 extension AdvanceInvitationStateExtension on AdvanceInvitationState {
@@ -20,23 +19,25 @@ extension AdvanceInvitationStateExtension on AdvanceInvitationState {
         return AdvanceInvitationState.error;
       case ZegoSignalingPluginInvitationUserState.inviting:
       case ZegoSignalingPluginInvitationUserState.received:
-      case ZegoSignalingPluginInvitationUserState.notYetReceived:
         return AdvanceInvitationState.waiting;
       case ZegoSignalingPluginInvitationUserState.accepted:
         return AdvanceInvitationState.accepted;
       case ZegoSignalingPluginInvitationUserState.rejected:
         return AdvanceInvitationState.rejected;
       case ZegoSignalingPluginInvitationUserState.cancelled:
-      case ZegoSignalingPluginInvitationUserState.beCanceled:
         return AdvanceInvitationState.cancelled;
       case ZegoSignalingPluginInvitationUserState.timeout:
       case ZegoSignalingPluginInvitationUserState.quited:
       case ZegoSignalingPluginInvitationUserState.offline:
       case ZegoSignalingPluginInvitationUserState.ended:
         return AdvanceInvitationState.idle;
+    // Add default case to handle any unexpected state
+      default:
+        return AdvanceInvitationState.error;  // You can adjust this based on your logic
     }
   }
 }
+
 
 /// @nodoc
 class AdvanceInvitationData {
@@ -54,21 +55,7 @@ class AdvanceInvitationData {
   /// in c event, a is initiator, b is inviter
   AdvanceInvitationUser initiator;
   List<AdvanceInvitationUser> invitees;
-
-  /// invitation type use by prebuilt
-  //
-  // call
-  // ZegoCallInvitationType.voiceCall: 0,
-  // ZegoCallInvitationType.videoCall: 1,
-  //
-  // live streaming
-  // ZegoLiveStreamingInvitationType.requestCoHost: 2,
-  // ZegoLiveStreamingInvitationType.inviteToJoinCoHost: 3,
-  // ZegoLiveStreamingInvitationType.removeFromCoHost: 4,
-  // // ZegoLiveStreamingInvitationType.crossRoomPKBattleRequest: 5,
-  // ZegoLiveStreamingInvitationType.crossRoomPKBattleRequestV2: 6,
   int type;
-
   String data;
   String resourceID;
 
@@ -100,8 +87,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
   void initAdvanceInvitationData() {
     ZegoLoggerService.logInfo(
       'init',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     streamCtrlAdvanceInvitationUserStateChanged ??= StreamController<
@@ -119,14 +106,11 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
   void uninitAdvanceInvitationData() {
     ZegoLoggerService.logInfo(
       'uninit',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     advanceInvitationMap.clear();
-
-    streamCtrlAdvanceInvitationUserStateChanged?.close();
-    streamCtrlAdvanceInvitationUserStateChanged = null;
 
     streamCtrlAdvanceInvitationReceived?.close();
     streamCtrlAdvanceInvitationReceived = null;
@@ -143,14 +127,12 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
 
   String? get _loginUser =>
       ZegoSignalingPluginCore.shared.coreData.currentUserID;
-  String? get _loginUserName =>
-      ZegoSignalingPluginCore.shared.coreData.currentUserName;
 
   void addAdvanceInvitationData(AdvanceInvitationData invitationData) {
     ZegoLoggerService.logInfo(
       'add invitation data $invitationData',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
     advanceInvitationMap[invitationData.id] = invitationData;
   }
@@ -164,8 +146,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       ZegoLoggerService.logInfo(
         'append invitation data $invitationData,'
         'now ${invitationData.id}\'s invitees is ${advanceInvitationMap[invitationData.id]!.invitees}',
-        tag: 'uikit-plugin-signaling',
-        subTag: 'advance invitation data',
+        tag: 'uikit',
+        subTag: 'signaling advance invitation data',
       );
     } else {
       addAdvanceInvitationData(invitationData);
@@ -177,8 +159,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
 
     ZegoLoggerService.logInfo(
       'remove invitation data, invitationID: $invitationID, map:$advanceInvitationMap',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     return data;
@@ -259,8 +241,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
     ZegoLoggerService.logInfo(
       'clear advance invitation map if done, '
       'current map:$advanceInvitationMap',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     advanceInvitationMap.forEach((id, data) {
@@ -273,8 +255,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
 
     ZegoLoggerService.logInfo(
       'remove not connecting\'s invitee:$advanceInvitationMap',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     final keys = List.from(advanceInvitationMap.keys);
@@ -305,8 +287,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
     if (isDone) {
       ZegoLoggerService.logInfo(
         'all done， invitee:${invitees.map((e) => '${e.userID}:${e.state},')}, remove $invitationID',
-        tag: 'uikit-plugin-signaling',
-        subTag: 'advance invitation data',
+        tag: 'uikit',
+        subTag: 'signaling advance invitation data',
       );
 
       return removeAdvanceInvitationData(invitationID);
@@ -317,8 +299,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
   void clearAdvanceInvitationData() {
     ZegoLoggerService.logInfo(
       'clear invitation data',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     advanceInvitationMap = {};
@@ -346,8 +328,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       'kitData:$kitData, '
       'extendedData:$extendedData, '
       'pushConfig:$pushConfig, ',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     /// delay clear
@@ -366,8 +348,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       if (result.error == null) {
         ZegoLoggerService.logInfo(
           'send invitation done, invitationID:${result.invitationID}',
-          tag: 'uikit-plugin-signaling',
-          subTag: 'advance invitation data',
+          tag: 'uikit',
+          subTag: 'signaling advance invitation data',
         );
 
         final invitationData = AdvanceInvitationData(
@@ -394,8 +376,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
             errorMessage += '$id, reason:$reason;';
             ZegoLoggerService.logInfo(
               'invite error, $errorMessage',
-              tag: 'uikit-plugin-signaling',
-              subTag: 'advance invitation data',
+              tag: 'uikit',
+              subTag: 'signaling advance invitation data',
             );
           });
 
@@ -415,8 +397,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
         } else {
           ZegoLoggerService.logInfo(
             'invite success, invitationID:${result.invitationID}',
-            tag: 'uikit-plugin-signaling',
-            subTag: 'advance invitation data',
+            tag: 'uikit',
+            subTag: 'signaling advance invitation data',
           );
 
           return result;
@@ -424,8 +406,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       } else {
         ZegoLoggerService.logError(
           'send invitation failed, error: ${result.error}',
-          tag: 'uikit-plugin-signaling',
-          subTag: 'advance invitation data',
+          tag: 'uikit',
+          subTag: 'signaling advance invitation data',
         );
       }
       return result;
@@ -446,8 +428,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       'invitees:$invitees, '
       'extendedData:$extendedData, '
       'pushConfig:$pushConfig, ',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     /// delay clear
@@ -464,8 +446,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       if (result.error == null) {
         ZegoLoggerService.logInfo(
           'add invitation done, invitationID:${result.invitationID}',
-          tag: 'uikit-plugin-signaling',
-          subTag: 'advance invitation data',
+          tag: 'uikit',
+          subTag: 'signaling advance invitation data',
         );
 
         final invitationData = AdvanceInvitationData(
@@ -492,8 +474,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
             errorMessage += '$id, reason:$reason;';
             ZegoLoggerService.logInfo(
               'add invite error, $errorMessage',
-              tag: 'uikit-plugin-signaling',
-              subTag: 'advance invitation data',
+              tag: 'uikit',
+              subTag: 'signaling advance invitation data',
             );
           });
 
@@ -512,8 +494,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
         } else {
           ZegoLoggerService.logInfo(
             'add invite success, invitationID:${result.invitationID}',
-            tag: 'uikit-plugin-signaling',
-            subTag: 'advance invitation data',
+            tag: 'uikit',
+            subTag: 'signaling advance invitation data',
           );
 
           return result;
@@ -521,8 +503,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       } else {
         ZegoLoggerService.logError(
           'add invitation failed, error: ${result.error}',
-          tag: 'uikit-plugin-signaling',
-          subTag: 'advance invitation data',
+          tag: 'uikit',
+          subTag: 'signaling advance invitation data',
         );
       }
       return result;
@@ -538,8 +520,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       'join, '
       'invitationID:$invitationID, '
       'extendedData:$extendedData, ',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     return ZegoPluginAdapter().signalingPlugin!.joinInvitation(
@@ -561,8 +543,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       'invitationID:$invitationID, '
       'extendedData:$extendedData, '
       'pushConfig:$pushConfig, ',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     return ZegoPluginAdapter()
@@ -579,10 +561,10 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
             <AdvanceInvitationUser>[]) {
           final isCancelUser = invitees.contains(invitee.userID);
           final isCancelError = result.errorInvitees.contains(invitee.userID);
-          if (isCancelUser) {
-            invitee.state = isCancelError
-                ? AdvanceInvitationState.error
-                : AdvanceInvitationState.cancelled;
+          if (isCancelUser && !isCancelError) {
+            invitee.state = AdvanceInvitationState.cancelled;
+          } else {
+            invitee.state = AdvanceInvitationState.error;
           }
         }
 
@@ -592,22 +574,22 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
           for (final element in result.errorInvitees) {
             ZegoLoggerService.logError(
               'cancel invitation error, invitationID:$invitationID, invitee id:$element',
-              tag: 'uikit-plugin-signaling',
-              subTag: 'advance invitation data',
+              tag: 'uikit',
+              subTag: 'signaling advance invitation data',
             );
           }
         } else {
           ZegoLoggerService.logInfo(
             'cancel invitation done, invitationID:$invitationID',
-            tag: 'uikit-plugin-signaling',
-            subTag: 'advance invitation data',
+            tag: 'uikit',
+            subTag: 'signaling advance invitation data',
           );
         }
       } else {
         ZegoLoggerService.logError(
           'cancel invitation failed, error:${result.error}',
-          tag: 'uikit-plugin-signaling',
-          subTag: 'advance invitation data',
+          tag: 'uikit',
+          subTag: 'signaling advance invitation data',
         );
       }
       return result;
@@ -623,8 +605,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       'accept, '
       'invitationID:$invitationID, '
       'extendedData:$extendedData, ',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     return ZegoPluginAdapter()
@@ -637,14 +619,14 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       if (result.error == null) {
         ZegoLoggerService.logInfo(
           'accept invitation done, result: $result',
-          tag: 'uikit-plugin-signaling',
-          subTag: 'advance invitation data',
+          tag: 'uikit',
+          subTag: 'signaling advance invitation data',
         );
       } else {
         ZegoLoggerService.logError(
           'accept invitation failed, result: $result',
-          tag: 'uikit-plugin-signaling',
-          subTag: 'advance invitation data',
+          tag: 'uikit',
+          subTag: 'signaling advance invitation data',
         );
       }
       return result;
@@ -660,8 +642,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       'reject, '
       'invitationID:$invitationID, '
       'extendedData:$extendedData, ',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     return ZegoPluginAdapter()
@@ -674,14 +656,14 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       if (result.error == null) {
         ZegoLoggerService.logInfo(
           'reject invitation done, result: $result',
-          tag: 'uikit-plugin-signaling',
-          subTag: 'advance invitation data',
+          tag: 'uikit',
+          subTag: 'signaling advance invitation data',
         );
       } else {
         ZegoLoggerService.logError(
           'reject invitation failed, result: $result',
-          tag: 'uikit-plugin-signaling',
-          subTag: 'advance invitation data',
+          tag: 'uikit',
+          subTag: 'signaling advance invitation data',
         );
       }
       return result;
@@ -699,8 +681,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       'invitationID:$invitationID, '
       'extendedData:$extendedData, '
       'pushConfig:$pushConfig, ',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     return ZegoPluginAdapter()
@@ -714,14 +696,14 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       if (result.error == null) {
         ZegoLoggerService.logInfo(
           'end invitation done, result: $result',
-          tag: 'uikit-plugin-signaling',
-          subTag: 'advance invitation data',
+          tag: 'uikit',
+          subTag: 'signaling advance invitation data',
         );
       } else {
         ZegoLoggerService.logError(
           'end invitation failed, result: $result',
-          tag: 'uikit-plugin-signaling',
-          subTag: 'advance invitation data',
+          tag: 'uikit',
+          subTag: 'signaling advance invitation data',
         );
       }
       return result;
@@ -739,8 +721,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       'invitationID:$invitationID, '
       'extendedData:$extendedData, '
       'pushConfig:$pushConfig, ',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     return ZegoPluginAdapter()
@@ -754,8 +736,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       if (result.error == null) {
         ZegoLoggerService.logInfo(
           'quit invitation done, result: $result',
-          tag: 'uikit-plugin-signaling',
-          subTag: 'advance invitation data',
+          tag: 'uikit',
+          subTag: 'signaling advance invitation data',
         );
 
         if (ZegoUIKit().getLocalUser().id ==
@@ -763,8 +745,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
           /// clear if quit local invitation
           ZegoLoggerService.logInfo(
             'clear local invitation data',
-            tag: 'uikit-plugin-signaling',
-            subTag: 'advance invitation data',
+            tag: 'uikit',
+            subTag: 'signaling advance invitation data',
           );
           getAdvanceInvitees(invitationID).forEach((invitee) {
             invitee.state = AdvanceInvitationState.idle;
@@ -774,8 +756,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       } else {
         ZegoLoggerService.logError(
           'quit invitation failed, result: $result',
-          tag: 'uikit-plugin-signaling',
-          subTag: 'advance invitation data',
+          tag: 'uikit',
+          subTag: 'signaling advance invitation data',
         );
       }
       return result;
@@ -787,11 +769,9 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
   ) {
     ZegoLoggerService.logInfo(
       'onAdvanceInvitationUserStateChanged, $event',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
-
-    event.type = advanceInvitationMap[event.invitationID]?.type ?? -1;
 
     for (var callUser in event.callUserList) {
       /// update initiator
@@ -821,8 +801,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
             );
         ZegoLoggerService.logInfo(
           'add user info, ${callUser.userID}',
-          tag: 'uikit-plugin-signaling',
-          subTag: 'advance invitation data',
+          tag: 'uikit',
+          subTag: 'signaling advance invitation data',
         );
       } else {
         user.state = AdvanceInvitationStateExtension
@@ -833,15 +813,15 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
 
         ZegoLoggerService.logInfo(
           'update user info, $user',
-          tag: 'uikit-plugin-signaling',
-          subTag: 'advance invitation data',
+          tag: 'uikit',
+          subTag: 'signaling advance invitation data',
         );
       }
     }
     ZegoLoggerService.logInfo(
       'invitation map: $advanceInvitationMap',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     timerClearAdvanceInvitationsIfDone();
@@ -855,23 +835,22 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
   ) {
     ZegoLoggerService.logInfo(
       'onIncomingInvitationReceived, event:$event',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
-    var requestData = ZegoUIKitAdvanceInvitationSendProtocol.empty();
+    var requestData = AdvanceInvitationRequestData.empty();
     try {
       final extendedDataMap =
           jsonDecode(event.extendedData) as Map<String, dynamic>;
 
-      requestData =
-          ZegoUIKitAdvanceInvitationSendProtocol.fromJson(extendedDataMap);
+      requestData = AdvanceInvitationRequestData.fromJson(extendedDataMap);
     } catch (e) {
       ZegoLoggerService.logInfo(
         'onIncomingInvitationReceived, event extended data not a '
         'AdvanceInvitationRequestData:${event.extendedData}',
-        tag: 'uikit-plugin-signaling',
-        subTag: 'advance invitation data',
+        tag: 'uikit',
+        subTag: 'signaling advance invitation data',
       );
     }
 
@@ -928,7 +907,7 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
           userInfo.state,
         );
         try {
-          final acceptData = ZegoUIKitAdvanceInvitationAcceptProtocol.fromJson(
+          final acceptData = AdvanceInvitationAcceptData.fromJson(
               jsonDecode(userInfo.extendedData));
           if (acceptData.customData.isNotEmpty) {
             invitees[queryIndex].extendedData = acceptData.customData;
@@ -959,17 +938,6 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       sessionCallUserList
           .removeWhere((user) => user.userID == currentInviter.id);
     }
-
-    ZegoUIKit().reporter().report(
-      event: ZegoUIKitSignalingReporter.eventCallInviteReceived,
-      params: {
-        ZegoUIKitSignalingReporter.eventKeyInvitationID: event.invitationID,
-        ZegoUIKitSignalingReporter.eventKeyInviter: event.inviterID,
-        ZegoUIKitSignalingReporter.eventKeyExtendedData: event.extendedData,
-        ZegoUIKitReporter.eventKeyAppState: ZegoUIKitReporter.currentAppState(),
-      },
-    );
-
     streamCtrlAdvanceInvitationReceived?.add({
       'invitation_id': event.invitationID,
       'data': requestData.customData,
@@ -993,8 +961,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
     //  inviter extendedData
     ZegoLoggerService.logInfo(
       'onIncomingInvitationCancelled',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     final invitationData = removeAdvanceInvitationData(event.invitationID);
@@ -1002,15 +970,15 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       'onIncomingInvitationCancelled, '
       'event:$event, '
       'invitationData:$invitationData',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     streamCtrlAdvanceInvitationCanceled?.add({
-      'invitation_id': event.invitationID,
-      'data': event.extendedData,
       'type': invitationData?.type ?? 0,
+      'invitation_id': event.invitationID,
       'inviter': ZegoUIKitUser(id: event.inviterID, name: ''),
+      'data': event.extendedData,
     });
   }
 
@@ -1019,8 +987,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
   ) {
     ZegoLoggerService.logInfo(
       'onOutgoingAdvanceInvitationEnded',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     final invitationData = advanceInvitationMap[event.invitationID];
@@ -1028,8 +996,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       'onOutgoingAdvanceInvitationEnded, '
       'event:$event, '
       'invitationData:$invitationData',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     getAdvanceInvitees(event.invitationID).forEach((invitee) {
@@ -1052,8 +1020,8 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
   ) {
     ZegoLoggerService.logInfo(
       'onIncomingInvitationTimeout',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     final invitationData = removeAdvanceInvitationData(event.invitationID);
@@ -1061,18 +1029,16 @@ mixin ZegoSignalingPluginCoreAdvanceInvitationData {
       'onIncomingInvitationTimeout, '
       'event:$event, '
       'invitationData:$invitationData',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'advance invitation data',
+      tag: 'uikit',
+      subTag: 'signaling advance invitation data',
     );
 
     streamCtrlAdvanceInvitationTimeout?.add({
       'invitation_id': event.invitationID,
       'data': invitationData?.data ?? '',
       'type': invitationData?.type ?? 0,
-      'inviter': ZegoUIKitUser(
-        id: invitationData?.initiator.userID ?? '',
-        name: '',
-      ),
+      'inviter':
+          ZegoUIKitUser(id: invitationData?.initiator.userID ?? '', name: ''),
     });
   }
 }

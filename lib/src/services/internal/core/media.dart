@@ -19,9 +19,9 @@ extension ZegoUIKitCoreBaseMedia on ZegoUIKitCore {
 
     if (ZegoUIKitErrorCode.success == playResult.errorCode) {
       ZegoLoggerService.logInfo(
-        'finished, try start publish stream',
-        tag: 'uikit-media',
-        subTag: 'playMedia',
+        'playMedia finished, try start publish stream',
+        tag: 'uikit core',
+        subTag: 'media',
       );
       await coreData
           .startPublishingStream(streamType: ZegoStreamType.media)
@@ -73,9 +73,9 @@ extension ZegoUIKitCoreBaseMedia on ZegoUIKitCore {
 
   Future<void> setMediaVolume(
     int volume, {
-    bool isSyncToRemote = false,
+    bool isSync = false,
   }) async {
-    return coreData.media.setVolume(volume, isSyncToRemote);
+    return coreData.media.setVolume(volume, isSync);
   }
 
   int getMediaVolume() {

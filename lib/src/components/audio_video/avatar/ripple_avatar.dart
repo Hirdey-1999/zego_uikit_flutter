@@ -56,7 +56,6 @@ class _ZegoRippleAvatarState extends State<ZegoRippleAvatar> {
   void dispose() {
     /// cancel subscription
     soundLevelStreamSubscription?.cancel();
-    userListUpdateSubscription?.cancel();
 
     super.dispose();
   }
@@ -70,21 +69,6 @@ class _ZegoRippleAvatarState extends State<ZegoRippleAvatar> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.user == null
-        ? animation()
-        : ValueListenableBuilder<bool>(
-            valueListenable: widget.user!.microphone,
-            builder: (context, isOpen, _) {
-              if (!isOpen) {
-                countNotifier.value = 0;
-              }
-
-              return animation();
-            },
-          );
-  }
-
-  Widget animation() {
     return RippleAnimation(
       color: widget.color ?? const Color(0xffDBDDE3).withOpacity(0.1),
       minRadius: widget.minRadius,

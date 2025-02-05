@@ -1,3 +1,6 @@
+// Dart imports:
+import 'dart:math' as math;
+
 // Flutter imports:
 import 'package:flutter/material.dart';
 
@@ -62,7 +65,8 @@ class ZegoLeaveButton extends StatelessWidget {
             height: containerSize.height,
             decoration: BoxDecoration(
               color: icon?.backgroundColor ?? Colors.red,
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.all(Radius.circular(
+                  math.min(containerSize.width, containerSize.height) / 2)),
             ),
             child: SizedBox.fromSize(
               size: sizeBoxSize,
@@ -79,7 +83,7 @@ class ZegoLeaveButton extends StatelessWidget {
     ZegoUIKit().leaveRoom().then((result) {
       ZegoLoggerService.logInfo(
         'leave room result, ${result.errorCode} ${result.extendedData}',
-        tag: 'uikit-component',
+        tag: 'uikit',
         subTag: 'leave button',
       );
     });

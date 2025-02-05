@@ -18,14 +18,12 @@ mixin ZegoUIKitCoreDataScreenSharing {
 
   ZegoScreenCaptureSource? screenCaptureSource;
   ValueNotifier<bool> isScreenSharing = ValueNotifier(false);
-  ValueNotifier<bool> isScreenSharingQualityNormal = ValueNotifier(false);
   bool isFirstScreenSharing = true;
 
   void initScreenSharing() {
     ZegoLoggerService.logInfo(
       'init screen sharing',
-      tag: 'uikit-screen-sharing',
-      subTag: 'init',
+      subTag: 'screen sharing',
     );
 
     screenSharingListStreamCtrl ??=
@@ -35,8 +33,7 @@ mixin ZegoUIKitCoreDataScreenSharing {
   void uninitScreenSharing() {
     ZegoLoggerService.logInfo(
       'uninit screen sharing',
-      tag: 'uikit-screen-sharing',
-      subTag: 'uninit',
+      subTag: 'screen sharing',
     );
 
     screenSharingListStreamCtrl?.close();
@@ -45,53 +42,37 @@ mixin ZegoUIKitCoreDataScreenSharing {
 
   //start screen share
   Future<void> startSharingScreen() async {
-    ZegoLoggerService.logInfo(
-      'try start',
-      tag: 'uikit-screen-sharing',
-      subTag: 'startSharingScreen',
-    );
-
     screenCaptureSource =
         await ZegoExpressEngine.instance.createScreenCaptureSource();
 
-    isScreenSharingQualityNormal.value = false;
-    isScreenSharing.value = true;
-    await ZegoUIKitCore.shared.coreData.startPublishingStream(
-      streamType: ZegoStreamType.screenSharing,
-    );
-    final config = ZegoScreenCaptureConfig(
-      true,
-      true,
-      microphoneVolume: 100,
-      applicationVolume: 100,
-    );
-    await screenCaptureSource?.startCapture(
-      config: config,
-      inApp: false,
-    );
+    await ZegoExpressEngine.instance
+        .setVideoSource(
+      ZegoVideoSourceType.ScreenCapture,
+      instanceID: screenCaptureSource?.getIndex(),
+      channel: ZegoStreamType.screenSharing.channel,
+    )
+        .then((value) {
+      isScreenSharing.value = true;
+      ZegoUIKitCore.shared.coreData
+          .startPublishingStream(streamType: ZegoStreamType.screenSharing);
+      final config = ZegoScreenCaptureConfig(
+        true,
+        true,
+        microphoneVolume: 100,
+        applicationVolume: 100,
+      );
+      screenCaptureSource?.startCapture(config: config);
+    });
 
     if (isFirstScreenSharing && Platform.isAndroid) {
       isFirstScreenSharing = false;
       await stopSharingScreen();
-      await startSharingScreen();
+      startSharingScreen();
     }
-
-    ZegoLoggerService.logInfo(
-      'start done',
-      tag: 'uikit-screen-sharing',
-      subTag: 'startSharingScreen',
-    );
   }
 
   //stop screen share
   Future<void> stopSharingScreen() async {
-    ZegoLoggerService.logInfo(
-      'try stop',
-      tag: 'uikit-screen-sharing',
-      subTag: 'stopSharingScreen',
-    );
-
-    isScreenSharingQualityNormal.value = false;
     isScreenSharing.value = false;
 
     await ZegoUIKitCore.shared.coreData.stopPublishingStream(
@@ -102,11 +83,5 @@ mixin ZegoUIKitCoreDataScreenSharing {
 
     await ZegoExpressEngine.instance
         .destroyScreenCaptureSource(screenCaptureSource!);
-
-    ZegoLoggerService.logInfo(
-      'stop done',
-      tag: 'uikit-screen-sharing',
-      subTag: 'stopSharingScreen',
-    );
   }
 }

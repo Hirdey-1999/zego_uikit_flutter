@@ -48,9 +48,6 @@ class ZegoLayout {
     ///
     ZegoShowFullscreenModeToggleButtonRules showScreenSharingFullscreenModeToggleButtonRules =
         ZegoShowFullscreenModeToggleButtonRules.showWhenScreenPressed,
-
-    /// User ID for Specifying Large View
-    String? bigViewUserID,
   }) {
     return ZegoLayoutPictureInPictureConfig(
       margin: smallViewMargin,
@@ -65,15 +62,11 @@ class ZegoLayout {
           showNewScreenSharingViewInFullscreenMode,
       showScreenSharingFullscreenModeToggleButtonRules:
           showScreenSharingFullscreenModeToggleButtonRules,
-      bigViewUserID: bigViewUserID,
     );
   }
 
   /// Gallery Layout
   factory ZegoLayout.gallery({
-    /// true: show audio video view only open camera or microphone
-    bool showOnlyOnAudioVideo = false,
-
     /// The margin of layout, the layout will display center
     /// so you can display your widgets around empty spaces
     EdgeInsetsGeometry margin = const EdgeInsets.all(2.0),
@@ -89,7 +82,6 @@ class ZegoLayout {
         ZegoShowFullscreenModeToggleButtonRules.showWhenScreenPressed,
   }) {
     return ZegoLayoutGalleryConfig(
-      showOnlyOnAudioVideo: showOnlyOnAudioVideo,
       margin: margin,
       addBorderRadiusAndSpacingBetweenView:
           addBorderRadiusAndSpacingBetweenView,

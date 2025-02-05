@@ -38,12 +38,9 @@ class ZegoInRoomNotificationView extends StatefulWidget {
 
 class _ZegoInRoomNotificationViewState
     extends State<ZegoInRoomNotificationView> {
-  /// negative growth, because locally sent messages are not accepted,
-  /// duplicate ids do not occur
+  // negative growth, because locally sent messages are not accepted, duplicate ids do not occur
   int userMessageID = 0;
-
-  ///  type, message ids
-  Map<NotificationItemType, List<String>> typeMessages = {};
+  Map<NotificationItemType, List<int>> typeMessages = {}; //  type, message ids
 
   List<ZegoInRoomMessage> messages = []; //  chat/enter/leave messages,
   StreamController<List<ZegoInRoomMessage>>? messageListStream;
@@ -126,13 +123,12 @@ class _ZegoInRoomNotificationViewState
       }
 
       userMessageID = userMessageID - 1;
-      typeMessages[NotificationItemType.userJoin]!
-          .add(userMessageID.toString());
+      typeMessages[NotificationItemType.userJoin]!.add(userMessageID);
       final message = ZegoInRoomMessage(
         user: user,
         message: 'entered.',
         timestamp: DateTime.now().millisecondsSinceEpoch,
-        messageID: userMessageID.toString(),
+        messageID: userMessageID,
       );
       messages.add(message);
     }
@@ -146,13 +142,12 @@ class _ZegoInRoomNotificationViewState
       }
 
       userMessageID = userMessageID - 1;
-      typeMessages[NotificationItemType.userLeave]!
-          .add(userMessageID.toString());
+      typeMessages[NotificationItemType.userLeave]!.add(userMessageID);
       final message = ZegoInRoomMessage(
         user: user,
         message: 'left.',
         timestamp: DateTime.now().millisecondsSinceEpoch,
-        messageID: userMessageID.toString(),
+        messageID: userMessageID,
       );
       messages.add(message);
     }
@@ -205,7 +200,7 @@ class _ZegoInRoomNotificationViewState
     });
   }
 
-  NotificationItemType getMessageItemTypeBy(String messageID) {
+  NotificationItemType getMessageItemTypeBy(int messageID) {
     var itemType = NotificationItemType.message;
     typeMessages.forEach((type, messageIDs) {
       if (messageIDs.contains(messageID)) {

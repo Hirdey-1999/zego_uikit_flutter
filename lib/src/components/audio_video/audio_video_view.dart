@@ -1,5 +1,4 @@
 // Dart imports:
-import 'dart:async';
 import 'dart:core';
 
 // Flutter imports:
@@ -14,8 +13,6 @@ import 'package:zego_uikit/src/components/audio_video/defines.dart';
 import 'package:zego_uikit/src/components/defines.dart';
 import 'package:zego_uikit/src/components/internal/internal.dart';
 import 'package:zego_uikit/src/components/screen_util/screen_util.dart';
-import 'package:zego_uikit/src/components/widgets/flip_animation.dart';
-import 'package:zego_uikit/src/services/internal/core/core.dart';
 import 'package:zego_uikit/src/services/services.dart';
 
 /// display user audio and video information,
@@ -55,254 +52,95 @@ class ZegoAudioVideoView extends StatefulWidget {
 }
 
 class _ZegoAudioVideoViewState extends State<ZegoAudioVideoView> {
-  Timer? viewIDGuardTimer;
-  final isLocalUserFlippedNotifier = ValueNotifier<bool>(false);
-
-  int get userViewID => ZegoUIKit().getAudioVideoViewID(widget.user!.id);
-  bool get userViewIDIsEmpty => -1 == userViewID;
-
-  ZegoUIKitCoreUser get localUserData =>
-      ZegoUIKitCore.shared.coreData.localUser;
-
-  List<StreamSubscription<dynamic>?> subscriptions = [];
-
-  @override
-  void initState() {
-    super.initState();
-
-    subscriptions
-      ..add(ZegoUIKit().getUserListStream().listen(onUserListUpdated))
-      ..add(ZegoUIKit()
-          .getAudioVideoListStream()
-          .listen(onAudioVideoListUpdated));
-  }
-
-  @override
-  void dispose() {
-    viewIDGuardTimer?.cancel();
-
-    for (final subscription in subscriptions) {
-      subscription?.cancel();
-    }
-
-    super.dispose();
-  }
-
-  void onUserListUpdated(List<ZegoUIKitUser> users) {
-    setState(() {});
-  }
-
-  void onAudioVideoListUpdated(List<ZegoUIKitUser> users) {
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (ZegoUIKit().getUser(widget.user?.id ?? '').isEmpty()) {
-      ZegoLoggerService.logInfo(
-        'use id:(${widget.user?.id}) is null',
-        tag: 'uikit-component',
-        subTag: 'audio video view',
-      );
-
-      return SizedBox.expand(
-        child: Stack(
-          children: [
-            background(),
-            foreground(),
-          ],
-        ),
-      );
-    }
-
-    final view = circleBorder(
-      child: ValueListenableBuilder<bool>(
-        valueListenable:
-            ZegoUIKit().getCameraStateNotifier(widget.user?.id ?? ''),
-        builder: (context, isCameraOn, _) {
-          ZegoLoggerService.logInfo(
-            '${widget.user?.id}\'s camera changed $isCameraOn,',
-            tag: 'uikit-component',
-            subTag: 'audio video view',
-          );
-
-          return isCameraOn
-              ? Stack(
-                  children: [
-                    background(),
-                    videoView(
-                      isCameraOn: isCameraOn,
-                    ),
-                    foreground(),
-                  ],
-                )
-              : Stack(
-                  children: [
-                    videoView(
-                      isCameraOn: isCameraOn,
-                    ),
-                    background(),
-                    foreground(),
-                  ],
-                );
-        },
+    return circleBorder(
+      child: Stack(
+        children: [
+          background(),
+          videoView(),
+          foreground(),
+        ],
       ),
     );
-
-    final isLocalUser =
-        null != widget.user && ZegoUIKit().getLocalUser().id == widget.user?.id;
-    return SizedBox.expand(
-      child: isLocalUser ? localCameraFlipAnimation(view) : view,
-    );
   }
 
-  Widget localCameraFlipAnimation(Widget child) {
-    /// local user, camera switch animation
-    return ValueListenableBuilder<bool>(
-      valueListenable: localUserData.isFrontFacing,
-      builder: (context, isReadyFrontFacing, _) {
-        localUserData.mainChannel.isCapturedVideoFirstFrame
-            .addListener(onCapturedVideoFirstFrameAfterSwitchCamera);
+  Widget videoView() {
+    if (widget.user == null) {
+      return Container(color: Colors.transparent);
+    }
 
-        return ZegoUIKitFlipTransition(
-          key: ValueKey(localUserData.id),
-          isFlippedNotifier: isLocalUserFlippedNotifier,
-          isFrontTriggerByTurnOnCamera:
-              localUserData.isFrontTriggerByTurnOnCamera,
-          child: ValueListenableBuilder<bool>(
-            valueListenable:
-                localUserData.mainChannel.isRenderedVideoFirstFrame,
-            builder: (context, isRenderedVideoFirstFrame, _) {
-              return isRenderedVideoFirstFrame
-                  ? child
-                  : Stack(
-                      children: [
-                        child,
-
-                        /// it was an overlay of the rendered frame, but the current video frame could not be obtained
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.grey.withOpacity(0.05),
-                                Colors.black.withOpacity(0.1),
-                              ],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  void onCapturedVideoFirstFrameAfterSwitchCamera() {
-    ZegoUIKitCore
-        .shared.coreData.localUser.mainChannel.isCapturedVideoFirstFrame
-        .removeListener(onCapturedVideoFirstFrameAfterSwitchCamera);
-
-    isLocalUserFlippedNotifier.value = !isLocalUserFlippedNotifier.value;
-
-    ZegoLoggerService.logInfo(
-      'onCapturedVideoFirstFrameAfterSwitchCamera',
-      tag: 'uikit-component',
-      subTag: 'audio video view',
-    );
-  }
-
-  Widget videoView({
-    required bool isCameraOn,
-  }) {
-    return userViewListenerBuilder(
-      childBuilder: (Widget audioVideoView) {
-        if (!isCameraOn) {
-          viewIDGuardTimer?.cancel();
-          viewIDGuardTimer = null;
-        } else if (userViewIDIsEmpty) {
-          runViewIDTimeGuard();
-        }
-
+    return StreamBuilder<List<ZegoUIKitUser>>(
+      stream: ZegoUIKit().getUserListStream(),
+      builder: (context, snapshot) {
         return ZegoUIKit().getUser(widget.user!.id).isEmpty()
             ? Container()
-            : LayoutBuilder(
-                builder: (context, constraints) {
-                  ZegoLoggerService.logInfo(
-                    '${widget.user?.id}\'s constraints changed,'
-                    'width:${constraints.maxWidth}, '
-                    'height:${constraints.maxHeight}, '
-                    'isCameraOn:$isCameraOn, ',
-                    tag: 'uikit-component',
-                    subTag: 'audio video view',
-                  );
+            : ValueListenableBuilder<bool>(
+                valueListenable:
+                    ZegoUIKit().getCameraStateNotifier(widget.user!.id),
+                builder: (context, isCameraOn, _) {
+                  if (!isCameraOn) {
+                    ZegoLoggerService.logInfo(
+                      '${widget.user?.id}\'s camera is not open',
+                      tag: 'uikit',
+                      subTag: 'audio video view',
+                    );
 
-                  return SizedBox(
-                    width: constraints.maxWidth,
-                    height: constraints.maxHeight,
-                    child: isCameraOn
-                        ? audioVideoView
-                        : Container(color: Colors.transparent),
+                    /// hide video view when use close camera
+                    return Container(color: Colors.transparent);
+                  }
+
+                  return SizedBox.expand(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return ValueListenableBuilder<Widget?>(
+                          valueListenable: ZegoUIKit()
+                              .getAudioVideoViewNotifier(widget.user!.id),
+                          builder: (context, userView, _) {
+                            if (userView == null) {
+                              ZegoLoggerService.logInfo(
+                                '${widget.user?.id}\'s view is null',
+                                tag: 'uikit',
+                                subTag: 'audio video view',
+                              );
+
+                              /// hide video view when use not found
+                              return Container(color: Colors.transparent);
+                            }
+
+                            ZegoLoggerService.logInfo(
+                              'render ${widget.user?.id}\'s view',
+                              tag: 'uikit',
+                              subTag: 'audio video view',
+                            );
+
+                            return StreamBuilder(
+                              stream: NativeDeviceOrientationCommunicator()
+                                  .onOrientationChanged(),
+                              builder: (context,
+                                  AsyncSnapshot<NativeDeviceOrientation>
+                                      asyncResult) {
+                                if (asyncResult.hasData) {
+                                  /// Do not update ui when ui is building !!!
+                                  /// use postFrameCallback to update videoSize
+                                  WidgetsBinding.instance
+                                      .addPostFrameCallback((_) {
+                                    ///  notify sdk to update video render orientation
+                                    ZegoUIKit().updateAppOrientation(
+                                      deviceOrientationMap(asyncResult.data!),
+                                    );
+                                  });
+                                }
+                                return userView;
+                              },
+                            );
+                          },
+                        );
+                      },
+                    ),
                   );
                 },
               );
-      },
-    );
-  }
-
-  Widget userViewListenerBuilder({
-    required Widget Function(
-      Widget audioVideoView,
-    ) childBuilder,
-  }) {
-    return ValueListenableBuilder<Widget?>(
-      valueListenable: ZegoUIKit().getAudioVideoViewNotifier(widget.user!.id),
-      builder: (context, userView, _) {
-        if (userView == null) {
-          ZegoLoggerService.logError(
-            '${widget.user?.id}\'s view is null',
-            tag: 'uikit-component',
-            subTag: 'audio video view',
-          );
-
-          /// hide video view when use not found
-          return Container(color: Colors.transparent);
-        }
-
-        ZegoLoggerService.logInfo(
-          'render ${widget.user?.id}\'s view ${userView.hashCode}',
-          tag: 'uikit-component',
-          subTag: 'audio video view',
-        );
-
-        return deviceOrientationListenerBuilder(
-          child: childBuilder(userView),
-        );
-      },
-    );
-  }
-
-  Widget deviceOrientationListenerBuilder({
-    required Widget child,
-  }) {
-    return StreamBuilder(
-      stream: NativeDeviceOrientationCommunicator().onOrientationChanged(),
-      builder: (context, AsyncSnapshot<NativeDeviceOrientation> asyncResult) {
-        if (asyncResult.hasData) {
-          /// Do not update ui when ui is building !!!
-          /// use postFrameCallback to update videoSize
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            ///  notify sdk to update video render orientation
-            ZegoUIKit().updateAppOrientation(
-              deviceOrientationMap(asyncResult.data!),
-            );
-          });
-        }
-
-        return child;
       },
     );
   }
@@ -429,38 +267,5 @@ class _ZegoAudioVideoViewState extends State<ZegoAudioVideoView> {
       case ZegoAvatarAlignment.end:
         return maxHeight - avatarHeight;
     }
-  }
-
-  void runViewIDTimeGuard() {
-    ZegoLoggerService.logInfo(
-      'guard run, ${widget.user?.id}\'s view id is:$userViewID',
-      tag: 'uikit-component',
-      subTag: 'audio video view',
-    );
-
-    viewIDGuardTimer?.cancel();
-    viewIDGuardTimer = null;
-
-    viewIDGuardTimer ??=
-        Timer.periodic(const Duration(milliseconds: 500), (timer) {
-      ZegoLoggerService.logInfo(
-        'guard check, ${widget.user?.id}\'s view id is:$userViewID',
-        tag: 'uikit-component',
-        subTag: 'audio video view',
-      );
-
-      if (!userViewIDIsEmpty) {
-        viewIDGuardTimer?.cancel();
-      } else {
-        ZegoLoggerService.logInfo(
-          'guard check, ${widget.user?.id}\'s view-id($userViewID) is not valid now, force update',
-          tag: 'uikit-component',
-          subTag: 'audio video view',
-        );
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          setState(() {});
-        });
-      }
-    });
   }
 }

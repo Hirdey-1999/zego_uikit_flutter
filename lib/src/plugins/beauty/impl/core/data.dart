@@ -12,11 +12,7 @@ class ZegoBeautyPluginCoreData {
   bool isInit = false;
 
   /// create engine
-  Future<void> create({
-    required int appID,
-    String appSign = '',
-    String licence = '',
-  }) async {
+  Future<void> create({required int appID, String appSign = ''}) async {
     if (ZegoPluginAdapter().getPlugin(ZegoUIKitPluginType.beauty) == null) {
       return;
     }
@@ -24,25 +20,19 @@ class ZegoBeautyPluginCoreData {
     if (isInit) {
       ZegoLoggerService.logInfo(
         'has created.',
-        tag: 'uikit-plugin-beauty',
+        tag: 'uikit',
         subTag: 'beauty core data',
       );
 
       return;
     }
 
-    ZegoPluginAdapter().beautyPlugin!.init(
-          appID: appID,
-          appSign: appSign,
-          licence: licence,
-        );
+    ZegoPluginAdapter().beautyPlugin!.init(appID: appID, appSign: appSign);
     isInit = true;
 
     ZegoLoggerService.logInfo(
-      'create, appID:$appID, '
-      'hasSign:${appSign.isNotEmpty}, '
-      'has license:${licence.isNotEmpty}',
-      tag: 'uikit-plugin-beauty',
+      'create, appID:$appID',
+      tag: 'uikit',
       subTag: 'beauty core data',
     );
   }
@@ -57,7 +47,7 @@ class ZegoBeautyPluginCoreData {
     isInit = false;
     ZegoLoggerService.logInfo(
       'destroy.',
-      tag: 'uikit-plugin-beauty',
+      tag: 'uikit',
       subTag: 'beauty core data',
     );
     clear();
@@ -66,7 +56,7 @@ class ZegoBeautyPluginCoreData {
   void clear() {
     ZegoLoggerService.logInfo(
       'clear',
-      tag: 'uikit-plugin-beauty',
+      tag: 'uikit',
       subTag: 'beauty core data',
     );
   }

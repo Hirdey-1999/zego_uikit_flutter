@@ -11,10 +11,6 @@ import 'package:zego_express_engine/zego_express_engine.dart';
 import 'package:zego_uikit/src/services/internal/core/core.dart';
 import 'package:zego_uikit/src/services/services.dart';
 
-extension ZegoUIKitUserList on List<ZegoUIKitUser> {
-  String get ids => map((e) => e.id).toString();
-}
-
 class ZegoUIKitUser {
   String id = '';
   String name = '';
@@ -23,8 +19,8 @@ class ZegoUIKitUser {
 
   factory ZegoUIKitUser.fromJson(Map<String, dynamic> json) {
     return ZegoUIKitUser(
-      id: json['id'] ?? '',
-      name: json['name'] ?? '',
+      id: json['id'],
+      name: json['name'],
     );
   }
 
@@ -156,7 +152,7 @@ class ZegoUIKitUser {
   ZegoUIKitUser.empty();
 
   bool isEmpty() {
-    return id.isEmpty;
+    return id.isEmpty || name.isEmpty;
   }
 
   ZegoUIKitUser({
@@ -172,23 +168,9 @@ class ZegoUIKitUser {
 
   @override
   String toString() {
-    return '{'
-        'id:$id, '
-        'name:$name, '
-        'in-room attributes:${inRoomAttributes.value}, '
-        'camera:${camera.value}, '
-        '}';
-  }
-
-  String toMoreString() {
-    return '{'
-        'id:$id, '
-        'name:$name, '
-        'camera:${camera.value}, '
-        'microphone:${microphone.value} '
-        'microphone:${microphone.value}, '
-        'microphone mute mode:${microphoneMuteMode.value} '
-        '}';
+    return '{id:$id, name:$name, in-room attributes:${inRoomAttributes.value}, '
+        'camera:${camera.value}, microphone:${microphone.value}, '
+        'microphone mute mode:${microphoneMuteMode.value} }';
   }
 }
 

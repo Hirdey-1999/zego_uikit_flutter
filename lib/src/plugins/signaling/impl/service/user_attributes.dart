@@ -12,7 +12,7 @@ mixin ZegoUIKitUserInRoomAttributesPluginService {
   void initUserInRoomAttributes() {
     ZegoLoggerService.logInfo(
       'user in-room init',
-      tag: 'uikit-plugin-signaling',
+      tag: 'uikit',
       subTag: 'user attributes',
     );
     _private.init();
@@ -21,7 +21,7 @@ mixin ZegoUIKitUserInRoomAttributesPluginService {
   void uninitUserInRoomAttributes() {
     ZegoLoggerService.logInfo(
       'user in-room uninit',
-      tag: 'uikit-plugin-signaling',
+      tag: 'uikit',
       subTag: 'user attributes',
     );
     _private.uninit();

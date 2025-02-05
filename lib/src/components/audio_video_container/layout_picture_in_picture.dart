@@ -45,9 +45,6 @@ class ZegoLayoutPictureInPictureConfig extends ZegoLayout {
   ZegoShowFullscreenModeToggleButtonRules
       showScreenSharingFullscreenModeToggleButtonRules;
 
-  /// User ID for Specifying Large View
-  String? bigViewUserID;
-
   ZegoLayoutPictureInPictureConfig({
     this.isSmallViewDraggable = true,
     this.switchLargeOrSmallViewByClick = true,
@@ -60,7 +57,6 @@ class ZegoLayoutPictureInPictureConfig extends ZegoLayout {
     this.showNewScreenSharingViewInFullscreenMode = true,
     this.showScreenSharingFullscreenModeToggleButtonRules =
         ZegoShowFullscreenModeToggleButtonRules.showWhenScreenPressed,
-    this.bigViewUserID,
   }) : super.internal();
 }
 
@@ -91,6 +87,15 @@ class ZegoLayoutPictureInPicture extends StatefulWidget {
 
 class _ZegoLayoutPictureInPictureState
     extends State<ZegoLayoutPictureInPicture> {
+  late ZegoViewPosition currentPosition;
+
+  @override
+  void initState() {
+    super.initState();
+
+    currentPosition = widget.layoutConfig.smallViewPosition;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.userList.length > 2) {
@@ -103,24 +108,10 @@ class _ZegoLayoutPictureInPictureState
   Widget oneOnOnePIP() {
     final localUser = ZegoUIKit().getLocalUser();
 
-    ZegoUIKitUser? largeViewUser;
-    ZegoUIKitUser? smallViewUser;
-
-    final queryBigViewUserIndex = widget.userList.indexWhere(
-      (user) => user.id == widget.layoutConfig.bigViewUserID,
-    );
-    if ((widget.layoutConfig.bigViewUserID?.isNotEmpty ?? false) &&
-        -1 != queryBigViewUserIndex) {
-      largeViewUser = widget.userList[queryBigViewUserIndex];
-      final smallViewUserIndex = widget.userList
-          .indexWhere((user) => user.id != widget.layoutConfig.bigViewUserID);
-      if (-1 != smallViewUserIndex) {
-        smallViewUser = widget.userList[smallViewUserIndex];
-      }
-    } else {
-      largeViewUser = widget.userList.isNotEmpty ? widget.userList[0] : null;
-      smallViewUser = widget.userList.length > 1 ? widget.userList[1] : null;
-    }
+    final largeViewUser =
+        widget.userList.isNotEmpty ? widget.userList[0] : null;
+    final smallViewUser =
+        widget.userList.length > 1 ? widget.userList[1] : null;
 
     return Stack(
       children: [
@@ -166,20 +157,8 @@ class _ZegoLayoutPictureInPictureState
   }
 
   Widget multiPIP() {
-    late ZegoUIKitUser largeViewUser;
-    List<ZegoUIKitUser> smallViewList = [];
-    final queryBigViewUserIndex = widget.userList.indexWhere(
-      (user) => user.id == widget.layoutConfig.bigViewUserID,
-    );
-    if ((widget.layoutConfig.bigViewUserID?.isNotEmpty ?? false) &&
-        -1 != queryBigViewUserIndex) {
-      largeViewUser = widget.userList[queryBigViewUserIndex];
-      smallViewList = List<ZegoUIKitUser>.from(widget.userList);
-      smallViewList.removeWhere((user) => user.id == largeViewUser.id);
-    } else {
-      largeViewUser = widget.userList[0];
-      smallViewList = widget.userList.sublist(1);
-    }
+    final largeViewUser = widget.userList[0];
+    final smallViewList = widget.userList.sublist(1);
 
     return Stack(
       children: [

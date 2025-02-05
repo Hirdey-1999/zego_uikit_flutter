@@ -9,13 +9,7 @@ mixin ZegoUIKitCoreDataError {
 
 /// @nodoc
 class ZegoUIKitCoreDataErrorImpl extends ZegoUIKitExpressEventInterface {
-  StreamController<ZegoUIKitError>? get errorStreamCtrl {
-    _errorStreamCtrl ??= StreamController<ZegoUIKitError>.broadcast();
-
-    return _errorStreamCtrl;
-  }
-
-  StreamController<ZegoUIKitError>? _errorStreamCtrl;
+  StreamController<ZegoUIKitError>? errorStreamCtrl;
 
   void init() {
     ZegoLoggerService.logInfo(
@@ -23,7 +17,7 @@ class ZegoUIKitCoreDataErrorImpl extends ZegoUIKitExpressEventInterface {
       subTag: 'core data',
     );
 
-    _errorStreamCtrl ??= StreamController<ZegoUIKitError>.broadcast();
+    errorStreamCtrl ??= StreamController<ZegoUIKitError>.broadcast();
   }
 
   void uninit() {
@@ -32,13 +26,13 @@ class ZegoUIKitCoreDataErrorImpl extends ZegoUIKitExpressEventInterface {
       subTag: 'core data',
     );
 
-    _errorStreamCtrl?.close();
-    _errorStreamCtrl = null;
+    errorStreamCtrl?.close();
+    errorStreamCtrl = null;
   }
 
   @override
   void onDebugError(int errorCode, String funcName, String info) {
-    _errorStreamCtrl?.add(
+    errorStreamCtrl?.add(
       ZegoUIKitError(
         code: errorCode,
         message: info,
@@ -49,7 +43,7 @@ class ZegoUIKitCoreDataErrorImpl extends ZegoUIKitExpressEventInterface {
 
   @override
   void onFatalError(int errorCode) {
-    _errorStreamCtrl?.add(
+    errorStreamCtrl?.add(
       ZegoUIKitError(
         code: errorCode,
         message: '',
@@ -61,7 +55,7 @@ class ZegoUIKitCoreDataErrorImpl extends ZegoUIKitExpressEventInterface {
   @override
   void onApiCalledResult(int errorCode, String funcName, String info) {
     if (ZegoErrorCode.CommonSuccess != errorCode) {
-      _errorStreamCtrl?.add(
+      errorStreamCtrl?.add(
         ZegoUIKitError(
           code: errorCode,
           message: info,
@@ -75,7 +69,7 @@ class ZegoUIKitCoreDataErrorImpl extends ZegoUIKitExpressEventInterface {
   void onMobileScreenCaptureExceptionOccurred(
     ZegoScreenCaptureExceptionType exceptionType,
   ) {
-    _errorStreamCtrl?.add(
+    errorStreamCtrl?.add(
       ZegoUIKitError(
         code: ZegoUIKitErrorCode.fromZegoScreenCaptureExceptionType(
           exceptionType,

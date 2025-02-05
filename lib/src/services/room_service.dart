@@ -1,37 +1,15 @@
 part of 'uikit_service.dart';
 
 mixin ZegoRoomService {
-  bool get isRoomLogin => ZegoUIKitCore.shared.coreData.room.id.isNotEmpty;
-
   /// join room
-  ///
-  /// *[token]
-  /// The token issued by the developer's business server is used to ensure security.
-  /// For the generation rules, please refer to [Using Token Authentication] (https://doc-zh.zego.im/article/10360), the default is an empty string, that is, no authentication.
-  ///
-  /// if appSign is not passed in or if appSign is empty, this parameter must be set for authentication when logging in to a room.
   Future<ZegoRoomLoginResult> joinRoom(
     String roomID, {
     String token = '',
     bool markAsLargeRoom = false,
-    bool keepWakeScreen = true,
-
-    /// Simulate entering the room, it will not really initiate the entry
-    /// call on express (accept offline call invitation on android, will join
-    /// in advance)
-    bool isSimulated = false,
   }) async {
-    if (ZegoUIKitCore.shared.hasLoginSameRoom(roomID)) {
-      return ZegoRoomLoginResult(0, {});
-    }
-
-    final joinBeginTime = DateTime.now().millisecondsSinceEpoch;
     final joinRoomResult = await ZegoUIKitCore.shared.joinRoom(
       roomID,
-      token: token,
       markAsLargeRoom: markAsLargeRoom,
-      keepWakeScreen: keepWakeScreen,
-      isSimulated: isSimulated,
     );
 
     if (ZegoErrorCode.CommonSuccess != joinRoomResult.errorCode) {
@@ -44,30 +22,12 @@ mixin ZegoRoomService {
       ));
     }
 
-    ZegoUIKit().reporter().report(
-      event: ZegoUIKitReporter.eventLoginRoom,
-      params: {
-        ZegoUIKitReporter.eventKeyRoomID: roomID,
-        ZegoUIKitReporter.eventKeyToken: token,
-        ZegoUIKitReporter.eventKeyStartTime: joinBeginTime,
-        ZegoUIKitReporter.eventKeyErrorCode: joinRoomResult.errorCode,
-        ZegoUIKitReporter.eventKeyErrorMsg:
-            joinRoomResult.extendedData.toString(),
-      },
-    );
-
     return joinRoomResult;
   }
 
   /// leave room
-  Future<ZegoRoomLogoutResult> leaveRoom({
-    String? targetRoomID,
-  }) async {
-    final currentRoomID = ZegoUIKitCore.shared.coreData.room.id;
-
-    final leaveRoomResult = await ZegoUIKitCore.shared.leaveRoom(
-      targetRoomID: targetRoomID,
-    );
+  Future<ZegoRoomLogoutResult> leaveRoom() async {
+    final leaveRoomResult = await ZegoUIKitCore.shared.leaveRoom();
 
     if (ZegoErrorCode.CommonSuccess != leaveRoomResult.errorCode) {
       ZegoUIKitCore.shared.error.errorStreamCtrl?.add(ZegoUIKitError(
@@ -78,21 +38,7 @@ mixin ZegoRoomService {
       ));
     }
 
-    ZegoUIKit().reporter().report(
-      event: ZegoUIKitReporter.eventLogoutRoom,
-      params: {
-        ZegoUIKitReporter.eventKeyRoomID: currentRoomID,
-        ZegoUIKitReporter.eventKeyErrorCode: leaveRoomResult.errorCode,
-        ZegoUIKitReporter.eventKeyErrorMsg:
-            leaveRoomResult.extendedData.toString(),
-      },
-    );
-
     return leaveRoomResult;
-  }
-
-  Future<void> renewRoomToken(String token) async {
-    await ZegoUIKitCore.shared.renewRoomToken(token);
   }
 
   /// get room object
@@ -129,12 +75,6 @@ mixin ZegoRoomService {
         const Stream.empty();
   }
 
-  /// the room Token authentication is about to expire will be sent 30 seconds before the Token expires
-  Stream<int> getRoomTokenExpiredStream() {
-    return ZegoUIKitCore.shared.coreData.room.tokenExpiredStreamCtrl?.stream ??
-        const Stream.empty();
-  }
-
   /// only notify the properties which changed
   /// you can get full properties by getRoomProperties() function
   Stream<Map<String, RoomProperty>> getRoomPropertiesStream() {
@@ -142,17 +82,9 @@ mixin ZegoRoomService {
         const Stream.empty();
   }
 
-  ValueNotifier<ZegoUIKitNetworkState> getNetworkStateNotifier() {
-    return ZegoUIKitCore.shared.coreData.networkStateNotifier;
-  }
-
-  ZegoUIKitNetworkState getNetworkState() {
-    return ZegoUIKitCore.shared.coreData.networkStateNotifier.value;
-  }
-
   /// get network state notifier
-  Stream<ZegoUIKitNetworkState> getNetworkModeStream() {
-    return ZegoUIKitCore.shared.coreData.networkStateStreamCtrl?.stream ??
+  Stream<ZegoNetworkMode> getNetworkModeStream() {
+    return ZegoUIKitCore.shared.coreData.networkModeStreamCtrl?.stream ??
         const Stream.empty();
   }
 }

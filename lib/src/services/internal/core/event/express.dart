@@ -13,8 +13,8 @@ class ZegoUIKitExpressEventImpl {
     if (events.contains(event)) {
       ZegoLoggerService.logInfo(
         '${event.hashCode} has registered',
-        tag: 'uikit-event',
-        subTag: 'express',
+        tag: 'uikit core',
+        subTag: 'event.express',
       );
 
       return;
@@ -22,8 +22,8 @@ class ZegoUIKitExpressEventImpl {
 
     ZegoLoggerService.logInfo(
       'register, ${event.hashCode}',
-      tag: 'uikit-event',
-      subTag: 'express',
+      tag: 'uikit core',
+      subTag: 'event.express',
     );
 
     events.add(event);
@@ -32,8 +32,8 @@ class ZegoUIKitExpressEventImpl {
   void unregister(ZegoUIKitExpressEventInterface event) {
     ZegoLoggerService.logInfo(
       'unregister, ${event.hashCode}',
-      tag: 'uikit-event',
-      subTag: 'express',
+      tag: 'uikit core',
+      subTag: 'event.express',
     );
 
     events.remove(event);
@@ -129,6 +129,7 @@ class ZegoUIKitExpressEventImpl {
     ZegoExpressEngine.onCapturedDataRecordProgressUpdate =
         onCapturedDataRecordProgressUpdate;
     ZegoExpressEngine.onPerformanceStatusUpdate = onPerformanceStatusUpdate;
+    ZegoExpressEngine.onNetworkModeChanged = onNetworkModeChanged;
     ZegoExpressEngine.onNetworkSpeedTestError = onNetworkSpeedTestError;
     ZegoExpressEngine.onNetworkSpeedTestQualityUpdate =
         onNetworkSpeedTestQualityUpdate;
@@ -153,22 +154,18 @@ class ZegoUIKitExpressEventImpl {
         onRangeAudioMicrophoneStateUpdate;
     ZegoExpressEngine.onDownloadProgressUpdate = onDownloadProgressUpdate;
     ZegoExpressEngine.onCurrentPitchValueUpdate = onCurrentPitchValueUpdate;
+    ZegoExpressEngine.onExceptionOccurred = onExceptionOccurred;
+    ZegoExpressEngine.onWindowStateChanged = onWindowStateChanged;
+    ZegoExpressEngine.onRectChanged = onRectChanged;
+    ZegoExpressEngine.onMobileScreenCaptureExceptionOccurred =
+        onMobileScreenCaptureExceptionOccurred;
     ZegoExpressEngine.onAIVoiceChangerInit = onAIVoiceChangerInit;
     ZegoExpressEngine.onAIVoiceChangerUpdate = onAIVoiceChangerUpdate;
     ZegoExpressEngine.onAIVoiceChangerGetSpeakerList =
         onAIVoiceChangerGetSpeakerList;
-
-    /// screen sharing
-    ZegoExpressEngine.onExceptionOccurred = onScreenCaptureExceptionOccurred;
-    ZegoExpressEngine.onWindowStateChanged = onScreenCaptureWindowStateChanged;
-    ZegoExpressEngine.onRectChanged = onScreenCaptureSourceRectChanged;
-    ZegoExpressEngine.onMobileScreenCaptureExceptionOccurred =
-        onMobileScreenCaptureExceptionOccurred;
   }
 
   void uninit() {
-    onEngineStateUpdate(ZegoEngineState.Stop);
-
     ZegoExpressEngine.onDebugError = null;
     ZegoExpressEngine.onApiCalledResult = null;
     ZegoExpressEngine.onEngineStateUpdate = null;
@@ -237,6 +234,7 @@ class ZegoUIKitExpressEventImpl {
     ZegoExpressEngine.onCapturedDataRecordStateUpdate = null;
     ZegoExpressEngine.onCapturedDataRecordProgressUpdate = null;
     ZegoExpressEngine.onPerformanceStatusUpdate = null;
+    ZegoExpressEngine.onNetworkModeChanged = null;
     ZegoExpressEngine.onNetworkSpeedTestError = null;
     ZegoExpressEngine.onNetworkSpeedTestQualityUpdate = null;
     ZegoExpressEngine.onNetworkQuality = null;
@@ -1101,50 +1099,37 @@ class ZegoUIKitExpressEventImpl {
     }
   }
 
-  void onScreenCaptureExceptionOccurred(
+  void onExceptionOccurred(
     ZegoScreenCaptureSource source,
     ZegoScreenCaptureSourceExceptionType exceptionType,
   ) {
-    debugPrint('111 onScreenCaptureExceptionOccurred, '
-        'source:$source, '
-        'exceptionType:$exceptionType, ');
     for (var event in events) {
-      event.onScreenCaptureExceptionOccurred(source, exceptionType);
+      event.onExceptionOccurred(source, exceptionType);
     }
   }
 
-  void onScreenCaptureWindowStateChanged(
+  void onWindowStateChanged(
     ZegoScreenCaptureSource source,
     ZegoScreenCaptureWindowState windowState,
     Rect windowRect,
   ) {
-    debugPrint('111 onScreenCaptureWindowStateChanged, '
-        'source:$source, '
-        'windowState:$windowState, '
-        'windowRect:$windowRect, '
-        '');
-
     for (var event in events) {
-      event.onScreenCaptureWindowStateChanged(source, windowState, windowRect);
+      event.onWindowStateChanged(source, windowState, windowRect);
     }
   }
 
-  void onScreenCaptureSourceRectChanged(
+  void onRectChanged(
     ZegoScreenCaptureSource source,
     Rect captureRect,
   ) {
-    debugPrint('111 onScreenCaptureSourceRectChanged, '
-        'source:$source, '
-        'captureRect:$captureRect, ');
     for (var event in events) {
-      event.onScreenCaptureSourceRectChanged(source, captureRect);
+      event.onRectChanged(source, captureRect);
     }
   }
 
   void onMobileScreenCaptureExceptionOccurred(
     ZegoScreenCaptureExceptionType exceptionType,
   ) {
-    debugPrint('111 onMobileScreenCaptureExceptionOccurred $exceptionType');
     for (var event in events) {
       event.onMobileScreenCaptureExceptionOccurred(exceptionType);
     }

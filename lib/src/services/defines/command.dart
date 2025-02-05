@@ -13,8 +13,6 @@ const turnMicrophoneOnInRoomCommandKey = 'zego_turn_microphone_on';
 
 const turnMicrophoneOffInRoomCommandKey = 'zego_turn_microphone_off';
 
-const clearMessageInRoomCommandKey = 'zego_clear_message';
-
 const userIDCommandKey = 'zego_user_id';
 
 const muteModeCommandKey = 'zego_mute_mode';

@@ -9,16 +9,16 @@ Future<bool> requestPermission(Permission permission) async {
   try {
     status = await permission.request();
   } catch (e) {
-    ZegoLoggerService.logError(
-      '$permission permission not granted, $e',
+    ZegoLoggerService.logInfo(
+      'Exception: $permission permission not granted, $e',
       tag: 'uikit',
       subTag: 'permission',
     );
   }
 
   if (status != PermissionStatus.granted) {
-    ZegoLoggerService.logError(
-      '$permission permission not granted, $status',
+    ZegoLoggerService.logInfo(
+      'Error: $permission permission not granted, $status',
       tag: 'uikit',
       subTag: 'permission',
     );

@@ -6,35 +6,11 @@ import 'package:flutter/material.dart';
 // Project imports:
 import 'package:zego_uikit/zego_uikit.dart';
 
-class ZegoCancelInvitationButtonResult {
-  final String invitationID;
-  final String code;
-  final String message;
-  final List<String> errorInvitees;
-
-  ZegoCancelInvitationButtonResult({
-    required this.invitationID,
-    required this.code,
-    required this.message,
-    required this.errorInvitees,
-  });
-
-  @override
-  toString() {
-    return 'code:$code, '
-        'message:$message, '
-        'invitation id:$invitationID, '
-        'error invitees:$errorInvitees';
-  }
-}
-
 /// @nodoc
 class ZegoCancelInvitationButton extends StatefulWidget {
   const ZegoCancelInvitationButton({
     Key? key,
     required this.invitees,
-    this.isAdvancedMode = false,
-    this.targetInvitationID,
     this.data,
     this.text,
     this.textStyle,
@@ -44,16 +20,12 @@ class ZegoCancelInvitationButton extends StatefulWidget {
     this.iconTextSpacing,
     this.verticalLayout = true,
     this.onPressed,
-    this.networkLoadingConfig,
     this.clickableTextColor = Colors.black,
     this.unclickableTextColor = Colors.black,
     this.clickableBackgroundColor = Colors.transparent,
     this.unclickableBackgroundColor = Colors.transparent,
   }) : super(key: key);
-  final bool isAdvancedMode;
-
   final List<String> invitees;
-  final String? targetInvitationID;
 
   final String? data;
   final String? text;
@@ -71,9 +43,7 @@ class ZegoCancelInvitationButton extends StatefulWidget {
   final Color? unclickableBackgroundColor;
 
   ///  You can do what you want after pressed.
-  final void Function(ZegoCancelInvitationButtonResult result)? onPressed;
-
-  final ZegoNetworkLoadingConfig? networkLoadingConfig;
+  final void Function(String code, String message, List<String>)? onPressed;
 
   @override
   State<ZegoCancelInvitationButton> createState() =>
@@ -99,29 +69,19 @@ class _ZegoCancelInvitationButtonState
       unclickableTextColor: widget.unclickableTextColor,
       clickableBackgroundColor: widget.clickableBackgroundColor,
       unclickableBackgroundColor: widget.unclickableBackgroundColor,
-      networkLoadingConfig: widget.networkLoadingConfig,
     );
   }
 
   Future<void> onPressed() async {
-    final result = widget.isAdvancedMode
-        ? await ZegoUIKit().getSignalingPlugin().cancelAdvanceInvitation(
-              invitees: widget.invitees,
-              data: widget.data ?? '',
-              invitationID: widget.targetInvitationID,
-            )
-        : await ZegoUIKit().getSignalingPlugin().cancelInvitation(
-              invitees: widget.invitees,
-              data: widget.data ?? '',
-            );
+    final result = await ZegoUIKit().getSignalingPlugin().cancelInvitation(
+          invitees: widget.invitees,
+          data: widget.data ?? '',
+        );
 
     widget.onPressed?.call(
-      ZegoCancelInvitationButtonResult(
-        invitationID: result.invitationID,
-        code: result.error?.code ?? '',
-        message: result.error?.message ?? '',
-        errorInvitees: result.errorInvitees,
-      ),
+      result.error?.code ?? '',
+      result.error?.message ?? '',
+      result.errorInvitees,
     );
   }
 }

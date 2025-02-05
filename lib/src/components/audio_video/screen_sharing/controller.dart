@@ -3,11 +3,8 @@ import 'package:flutter/cupertino.dart';
 
 // Project imports:
 import 'package:zego_uikit/zego_uikit.dart';
-import 'controller_p.dart';
 
 class ZegoScreenSharingViewController {
-  final private = ZegoScreenSharingViewControllerPrivate();
-
   final _fullscreenUserNotifier = ValueNotifier<ZegoUIKitUser?>(null);
 
   ValueNotifier<ZegoUIKitUser?> get fullscreenUserNotifier =>

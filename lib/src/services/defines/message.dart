@@ -18,21 +18,10 @@ enum ZegoInRoomMessageState {
   failed,
 }
 
-enum ZegoInRoomMessageType {
-  /// Messages are guaranteed to be reliable
-  /// 10 times/second for room
-  /// The room is not supported when the number of online people exceeds 500
-  broadcastMessage,
-
-  /// Messages are not guaranteed to be reliable
-  /// 20 times/second for room
-  barrageMessage
-}
-
 /// in-room message
 class ZegoInRoomMessage {
   /// If the local message sending fails, then the message ID at this time is unreliable, and is a negative sequential value.
-  String messageID;
+  int messageID;
 
   /// message sender.
   ZegoUIKitUser user;
@@ -73,14 +62,6 @@ class ZegoInRoomMessage {
           user: ZegoUIKitUser.fromZego(message.fromUser),
           message: message.message,
           timestamp: message.sendTime,
-          messageID: message.messageID.toString(),
-        );
-
-  ZegoInRoomMessage.fromBarrageMessage(ZegoBarrageMessageInfo message)
-      : this(
-          user: ZegoUIKitUser.fromZego(message.fromUser),
-          message: message.message,
-          timestamp: message.sendTime,
           messageID: message.messageID,
         );
 
@@ -108,9 +89,6 @@ class ZegoInRoomMessage {
 
   @override
   String toString() {
-    return 'ZegoInRoomMessage{id:$messageID, '
-        'user:${user.id}, '
-        'message:$message, '
-        'timestamp:$timestamp}';
+    return '{id:$messageID, user:$user message:$message, timestamp:$timestamp}';
   }
 }

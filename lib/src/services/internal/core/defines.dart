@@ -110,16 +110,6 @@ class ZegoUIKitCoreStreamInfo {
   ValueNotifier<Size> viewSize = ValueNotifier<Size>(const Size(360, 640));
   StreamController<double>? soundLevel;
 
-  ValueNotifier<ZegoUIKitPublishStreamQuality> quality =
-      ValueNotifier<ZegoUIKitPublishStreamQuality>(
-          ZegoPublishStreamQualityExtension.empty().toUIKit());
-  ValueNotifier<bool> isCapturedAudioFirstFrame = ValueNotifier<bool>(false);
-  ValueNotifier<bool> isCapturedVideoFirstFrame = ValueNotifier<bool>(false);
-  ValueNotifier<bool> isRenderedVideoFirstFrame = ValueNotifier<bool>(false);
-  ValueNotifier<bool> isSendAudioFirstFrame = ValueNotifier<bool>(false);
-  ValueNotifier<bool> isSendVideoFirstFrame = ValueNotifier<bool>(false);
-  ValueNotifier<GlobalKey> globalKey = ValueNotifier<GlobalKey>(GlobalKey());
-
   ZegoUIKitCoreStreamInfo.empty() {
     soundLevel ??= StreamController<double>.broadcast();
   }
@@ -132,13 +122,6 @@ class ZegoUIKitCoreStreamInfo {
     viewID = -1;
     view.value = null;
     viewSize.value = const Size(360, 640);
-
-    quality.value = ZegoPublishStreamQualityExtension.empty().toUIKit();
-    isCapturedAudioFirstFrame.value = false;
-    isCapturedVideoFirstFrame.value = false;
-    isRenderedVideoFirstFrame.value = false;
-    isSendAudioFirstFrame.value = false;
-    isSendVideoFirstFrame.value = false;
   }
 }
 
@@ -152,8 +135,8 @@ class ZegoUIKitCoreUser {
   ZegoUIKitCoreUser.empty();
 
   ZegoUIKitCoreUser.localDefault() {
-    camera.value = false;
-    microphone.value = false;
+    camera.value = true;
+    microphone.value = true;
   }
 
   bool get isEmpty => id.isEmpty;
@@ -209,7 +192,6 @@ class ZegoUIKitCoreUser {
 
   // only for local
   ValueNotifier<bool> isFrontFacing = ValueNotifier<bool>(true);
-  ValueNotifier<bool> isFrontTriggerByTurnOnCamera = ValueNotifier<bool>(false);
   ValueNotifier<bool> isVideoMirror = ValueNotifier<bool>(false);
   ValueNotifier<ZegoUIKitAudioRoute> audioRoute =
       ValueNotifier<ZegoUIKitAudioRoute>(ZegoUIKitAudioRoute.receiver);
@@ -236,7 +218,7 @@ class ZegoUIKitCoreRoom {
   ZegoUIKitCoreRoom(this.id) {
     ZegoLoggerService.logInfo(
       'create $id',
-      tag: 'uikit-service-core',
+      tag: 'uikit',
       subTag: 'core room',
     );
   }
@@ -247,8 +229,7 @@ class ZegoUIKitCoreRoom {
   bool markAsLargeRoom = false;
 
   ValueNotifier<ZegoUIKitRoomState> state = ValueNotifier<ZegoUIKitRoomState>(
-    ZegoUIKitRoomState(ZegoRoomStateChangedReason.Logout, 0, {}),
-  );
+      ZegoUIKitRoomState(ZegoRoomStateChangedReason.Logout, 0, {}));
 
   bool roomExtraInfoHadArrived = false;
   Map<String, RoomProperty> properties = {};
@@ -257,25 +238,23 @@ class ZegoUIKitCoreRoom {
 
   StreamController<RoomProperty>? propertyUpdateStream;
   StreamController<Map<String, RoomProperty>>? propertiesUpdatedStream;
-  StreamController<int>? tokenExpiredStreamCtrl;
 
   void init() {
     ZegoLoggerService.logInfo(
       'init',
-      tag: 'uikit-service-core',
+      tag: 'uikit',
       subTag: 'core room',
     );
 
     propertyUpdateStream ??= StreamController<RoomProperty>.broadcast();
     propertiesUpdatedStream ??=
         StreamController<Map<String, RoomProperty>>.broadcast();
-    tokenExpiredStreamCtrl ??= StreamController<int>.broadcast();
   }
 
   void uninit() {
     ZegoLoggerService.logInfo(
       'uninit',
-      tag: 'uikit-service-core',
+      tag: 'uikit',
       subTag: 'core room',
     );
 
@@ -284,15 +263,12 @@ class ZegoUIKitCoreRoom {
 
     propertiesUpdatedStream?.close();
     propertiesUpdatedStream = null;
-
-    tokenExpiredStreamCtrl?.close();
-    tokenExpiredStreamCtrl = null;
   }
 
   void clear() {
     ZegoLoggerService.logInfo(
       'clear',
-      tag: 'uikit-service-core',
+      tag: 'uikit',
       subTag: 'core room',
     );
 
@@ -415,27 +391,5 @@ extension ZegoUIKitAudioRouteExtension on ZegoUIKitAudioRoute {
       case ZegoUIKitAudioRoute.airPlay:
         return ZegoAudioRoute.AirPlay;
     }
-  }
-}
-
-extension ZegoUIKitNetworkStateExtension on ZegoUIKitNetworkState {
-  static ZegoUIKitNetworkState fromZego(ZegoNetworkMode networkMode) {
-    ZegoUIKitNetworkState uiKitNetworkState = ZegoUIKitNetworkState.unknown;
-    switch (networkMode) {
-      case ZegoNetworkMode.Offline:
-      case ZegoNetworkMode.Unknown:
-        uiKitNetworkState = ZegoUIKitNetworkState.offline;
-        break;
-      case ZegoNetworkMode.Ethernet:
-      case ZegoNetworkMode.WiFi:
-      case ZegoNetworkMode.Mode2G:
-      case ZegoNetworkMode.Mode3G:
-      case ZegoNetworkMode.Mode4G:
-      case ZegoNetworkMode.Mode5G:
-        uiKitNetworkState = ZegoUIKitNetworkState.online;
-        break;
-    }
-
-    return uiKitNetworkState;
   }
 }

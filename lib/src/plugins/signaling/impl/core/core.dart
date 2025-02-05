@@ -22,10 +22,6 @@ class ZegoSignalingPluginCore with ZegoSignalingPluginCoreEvent {
         Future.value('signalingPlugin:null');
   }
 
-  Future<void> setAdvancedConfig(String key, String value) async {
-    await ZegoPluginAdapter().signalingPlugin?.setAdvancedConfig(key, value);
-  }
-
   bool isInit() {
     return coreData.isInit;
   }
@@ -47,25 +43,13 @@ class ZegoSignalingPluginCore with ZegoSignalingPluginCoreEvent {
   }
 
   /// login
-  Future<bool> login(
-    String id,
-    String name, {
-    String token = '',
-  }) async {
-    return coreData.login(
-      id,
-      name,
-      token: token,
-    );
+  Future<bool> login(String id, String name) async {
+    return coreData.login(id, name);
   }
 
   /// logout
   Future<void> logout() async {
     await coreData.logout();
-  }
-
-  Future<bool> renewToken(String token) async {
-    return coreData.renewToken(token);
   }
 
   /// join room

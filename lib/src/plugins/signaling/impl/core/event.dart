@@ -9,17 +9,9 @@ import 'package:zego_uikit/src/plugins/signaling/impl/core/core.dart';
 
 /// @nodoc
 mixin ZegoSignalingPluginCoreEvent {
-  bool isEventInit = false;
-
   List<StreamSubscription<dynamic>> streamSubscriptions = [];
 
   void initEvent() {
-    if (isEventInit) {
-      return;
-    }
-
-    isEventInit = true;
-
     final plugin = ZegoPluginAdapter().signalingPlugin!;
     streamSubscriptions.addAll([
       plugin.getConnectionStateChangedEventStream().listen(
@@ -143,8 +135,6 @@ mixin ZegoSignalingPluginCoreEvent {
   }
 
   void uninitEvent() {
-    isEventInit = false;
-
     for (final subscription in streamSubscriptions) {
       subscription.cancel();
     }

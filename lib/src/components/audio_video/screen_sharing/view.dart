@@ -11,7 +11,6 @@ import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:zego_uikit/src/components/components.dart';
 import 'package:zego_uikit/src/components/internal/internal.dart';
 import 'package:zego_uikit/src/services/services.dart';
-import 'count_down.dart';
 
 const isScreenSharingExtraInfoKey = 'isScreenSharing';
 
@@ -56,40 +55,7 @@ class ZegoScreenSharingView extends StatefulWidget {
 }
 
 class _ZegoScreenSharingViewState extends State<ZegoScreenSharingView> {
-  var invalidQualityCount = 0;
   ValueNotifier<bool> isShowFullScreenButtonNotifier = ValueNotifier(false);
-
-  @override
-  void initState() {
-    super.initState();
-
-    ZegoUIKit()
-        .getAudioVideoSendVideoFirstFrameNotifier(
-          ZegoUIKit().getLocalUser().id,
-          streamType: ZegoStreamType.screenSharing,
-        )
-        .addListener(onSendVideoFirstFrame);
-    onSendVideoFirstFrame();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-
-    ZegoUIKit()
-        .getAudioVideoSendVideoFirstFrameNotifier(
-          ZegoUIKit().getLocalUser().id,
-          streamType: ZegoStreamType.screenSharing,
-        )
-        .removeListener(onSendVideoFirstFrame);
-
-    ZegoUIKit()
-        .getAudioVideoQualityNotifier(
-          ZegoUIKit().getLocalUser().id,
-          streamType: ZegoStreamType.screenSharing,
-        )
-        .removeListener(onQualityUpdated);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +72,6 @@ class _ZegoScreenSharingViewState extends State<ZegoScreenSharingView> {
                 videoView(),
               foreground(),
               fullScreenButton(),
-              countdown(),
             ],
           ),
         ),
@@ -207,6 +172,7 @@ class _ZegoScreenSharingViewState extends State<ZegoScreenSharingView> {
               right: 0,
               child: userName(context, constraints),
             ),
+            localScreenShareTipView(),
             ValueListenableBuilder(
               valueListenable: ZegoUIKitUserPropertiesNotifier(
                 widget.user ?? ZegoUIKitUser.empty(),
@@ -228,7 +194,6 @@ class _ZegoScreenSharingViewState extends State<ZegoScreenSharingView> {
                     Container();
               },
             ),
-            localScreenShareTipView(),
           ],
         ),
       );
@@ -281,25 +246,23 @@ class _ZegoScreenSharingViewState extends State<ZegoScreenSharingView> {
                     ),
                   ),
                   Padding(padding: EdgeInsets.only(top: 20.zR)),
-                  GestureDetector(
-                    onTap: () {
+                  OutlinedButton(
+                    onPressed: () {
                       ZegoUIKit.instance.stopSharingScreen();
                     },
-                    child: Container(
-                      padding: EdgeInsets.all(30.zR),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.red,
-                        ),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(73, 25),
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(6.zR),
                       ),
-                      child: Text(
-                        'Stop sharing',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 26.zR,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      side: BorderSide(width: 2.zR, color: Colors.red),
+                    ),
+                    child: Text(
+                      'Stop sharing',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 26.zR,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -342,36 +305,6 @@ class _ZegoScreenSharingViewState extends State<ZegoScreenSharingView> {
         shadowColor: widget.borderColor.withOpacity(0.3),
         child: child,
       ),
-    );
-  }
-
-  Widget countdown() {
-    final settings = widget.controller?.private.countDownStopSettings;
-    if (settings == null) {
-      return const SizedBox();
-    }
-
-    if (!settings.support) {
-      return const SizedBox();
-    }
-
-    return ValueListenableBuilder<bool>(
-      valueListenable: settings.countDownStartNotifier,
-      builder: (context, isStarted, _) {
-        return isStarted
-            ? Center(
-                child: ZegoScreenSharingCountdownTimer(
-                  seconds: settings.seconds,
-                  tips: settings.tips,
-                  textColor: settings.textColor,
-                  progressColor: settings.progressColor,
-                  secondFontSize: settings.secondFontSize,
-                  tipsFontSize: settings.tipsFontSize,
-                  onCountDownFinished: settings.onCountDownFinished,
-                ),
-              )
-            : const SizedBox();
-      },
     );
   }
 
@@ -423,64 +356,6 @@ class _ZegoScreenSharingViewState extends State<ZegoScreenSharingView> {
       return UIKitImage.asset(StyleIconUrls.iconVideoViewFullScreenClose);
     } else {
       return UIKitImage.asset(StyleIconUrls.iconVideoViewFullScreenOpen);
-    }
-  }
-
-  void onSendVideoFirstFrame() {
-    final value = ZegoUIKit()
-        .getAudioVideoSendVideoFirstFrameNotifier(
-          ZegoUIKit().getLocalUser().id,
-          streamType: ZegoStreamType.screenSharing,
-        )
-        .value;
-
-    if (value) {
-      /// start publishing
-      ZegoUIKit()
-          .getAudioVideoSendVideoFirstFrameNotifier(
-            ZegoUIKit().getLocalUser().id,
-            streamType: ZegoStreamType.screenSharing,
-          )
-          .removeListener(onSendVideoFirstFrame);
-
-      /// listen for system stop screen sharing
-      ZegoUIKit()
-          .getAudioVideoQualityNotifier(
-            ZegoUIKit().getLocalUser().id,
-            streamType: ZegoStreamType.screenSharing,
-          )
-          .addListener(onQualityUpdated);
-    }
-  }
-
-  void onQualityUpdated() {
-    final value = ZegoUIKit()
-        .getAudioVideoQualityNotifier(
-          ZegoUIKit().getLocalUser().id,
-          streamType: ZegoStreamType.screenSharing,
-        )
-        .value;
-
-    if (value.videoCaptureFPS < 0.01) {
-      invalidQualityCount++;
-    } else {
-      invalidQualityCount = 0;
-    }
-
-    final settings = widget.controller?.private.autoStopSettings ??
-        ZegoScreenSharingAutoStopSettings();
-    if (invalidQualityCount >= settings.invalidCount) {
-      ZegoUIKit()
-          .getAudioVideoQualityNotifier(
-            ZegoUIKit().getLocalUser().id,
-            streamType: ZegoStreamType.screenSharing,
-          )
-          .removeListener(onQualityUpdated);
-
-      if (settings.canEnd?.call() ?? true) {
-        /// system stopped
-        ZegoUIKit.instance.stopSharingScreen();
-      }
     }
   }
 }

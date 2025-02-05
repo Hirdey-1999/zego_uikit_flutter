@@ -4,31 +4,11 @@ import 'package:flutter/material.dart';
 // Project imports:
 import 'package:zego_uikit/zego_uikit.dart';
 
-class ZegoRefuseInvitationButtonResult {
-  final String invitationID;
-  final String code;
-  final String message;
-
-  ZegoRefuseInvitationButtonResult({
-    required this.invitationID,
-    required this.code,
-    required this.message,
-  });
-
-  @override
-  toString() {
-    return 'code:$code, '
-        'message:$message, '
-        'invitation id:$invitationID, ';
-  }
-}
-
 /// @nodoc
 class ZegoRefuseInvitationButton extends StatefulWidget {
   const ZegoRefuseInvitationButton({
     Key? key,
     required this.inviterID,
-    this.isAdvancedMode = false,
     this.targetInvitationID,
     this.data,
     this.text,
@@ -39,14 +19,11 @@ class ZegoRefuseInvitationButton extends StatefulWidget {
     this.iconTextSpacing,
     this.verticalLayout = true,
     this.onPressed,
-    this.networkLoadingConfig,
     this.clickableTextColor = Colors.black,
     this.unclickableTextColor = Colors.black,
     this.clickableBackgroundColor = Colors.transparent,
     this.unclickableBackgroundColor = Colors.transparent,
   }) : super(key: key);
-  final bool isAdvancedMode;
-
   final String inviterID;
   final String? targetInvitationID;
   final String? data;
@@ -66,9 +43,7 @@ class ZegoRefuseInvitationButton extends StatefulWidget {
   final Color? unclickableBackgroundColor;
 
   ///  You can do what you want after pressed.
-  final void Function(ZegoRefuseInvitationButtonResult result)? onPressed;
-
-  final ZegoNetworkLoadingConfig? networkLoadingConfig;
+  final void Function(String code, String message)? onPressed;
 
   @override
   State<ZegoRefuseInvitationButton> createState() =>
@@ -93,29 +68,18 @@ class _ZegoRefuseInvitationButtonState
       unclickableTextColor: widget.unclickableTextColor,
       clickableBackgroundColor: widget.clickableBackgroundColor,
       unclickableBackgroundColor: widget.unclickableBackgroundColor,
-      networkLoadingConfig: widget.networkLoadingConfig,
     );
   }
 
   Future<void> onPressed() async {
-    final result = widget.isAdvancedMode
-        ? await ZegoUIKit().getSignalingPlugin().refuseAdvanceInvitation(
-              inviterID: widget.inviterID,
-              data: widget.data ?? '',
-              invitationID: widget.targetInvitationID,
-            )
-        : await ZegoUIKit().getSignalingPlugin().refuseInvitation(
-              inviterID: widget.inviterID,
-              data: widget.data ?? '',
-              targetInvitationID: widget.targetInvitationID,
-            );
+    final result = await ZegoUIKit().getSignalingPlugin().refuseInvitation(
+        inviterID: widget.inviterID,
+        data: widget.data ?? '',
+        targetInvitationID: widget.targetInvitationID);
 
     widget.onPressed?.call(
-      ZegoRefuseInvitationButtonResult(
-        invitationID: result.invitationID,
-        code: result.error?.code ?? '',
-        message: result.error?.message ?? '',
-      ),
+      result.error?.code ?? '',
+      result.error?.message ?? '',
     );
   }
 }

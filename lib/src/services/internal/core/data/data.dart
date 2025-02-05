@@ -17,16 +17,7 @@ class ZegoUIKitCoreData
 
   StreamController<ZegoInRoomCommandReceivedData>?
       customCommandReceivedStreamCtrl;
-  final networkStateNotifier =
-      ValueNotifier<ZegoUIKitNetworkState>(ZegoUIKitNetworkState.online);
-
-  ZegoUIKitExpressEngineState engineState = ZegoUIKitExpressEngineState.stop;
-  final engineStateStreamCtrl =
-      StreamController<ZegoUIKitExpressEngineState>.broadcast();
-  bool waitingEngineStopEnableCustomVideoProcessing = false;
-  StreamSubscription? engineStateUpdatedSubscription;
-
-  StreamController<ZegoUIKitNetworkState>? networkStateStreamCtrl;
+  StreamController<ZegoNetworkMode>? networkModeStreamCtrl;
 
   ZegoEffectsBeautyParam beautyParam = ZegoEffectsBeautyParam.defaultParam();
 
@@ -45,8 +36,7 @@ class ZegoUIKitCoreData
 
     customCommandReceivedStreamCtrl ??=
         StreamController<ZegoInRoomCommandReceivedData>.broadcast();
-    networkStateStreamCtrl ??=
-        StreamController<ZegoUIKitNetworkState>.broadcast();
+    networkModeStreamCtrl ??= StreamController<ZegoNetworkMode>.broadcast();
 
     room.init();
     initUser();
@@ -72,8 +62,8 @@ class ZegoUIKitCoreData
     customCommandReceivedStreamCtrl?.close();
     customCommandReceivedStreamCtrl = null;
 
-    networkStateStreamCtrl?.close();
-    networkStateStreamCtrl = null;
+    networkModeStreamCtrl?.close();
+    networkModeStreamCtrl = null;
 
     room.uninit();
     uninitUser();
@@ -94,7 +84,6 @@ class ZegoUIKitCoreData
     media.clear();
 
     isAllPlayStreamAudioVideoMuted = false;
-    isAllPlayStreamAudioMuted = false;
 
     remoteUsersList.clear();
     streamDic.clear();
@@ -107,15 +96,15 @@ class ZegoUIKitCoreData
   }) {
     ZegoLoggerService.logInfo(
       'set room:"$roomID", markAsLargeRoom:$markAsLargeRoom}',
-      tag: 'uikit-room',
-      subTag: 'setRoom',
+      tag: 'uikit',
+      subTag: 'core data',
     );
 
     if (roomID.isEmpty) {
       ZegoLoggerService.logError(
         'room id is empty',
-        tag: 'uikit-room',
-        subTag: 'setRoom',
+        tag: 'uikit',
+        subTag: 'core data',
       );
     }
 
@@ -132,8 +121,8 @@ class ZegoUIKitCoreData
     if (getLocalStreamID(streamType).isEmpty) {
       ZegoLoggerService.logError(
         'local user has not publish stream, send sei will be failed',
-        tag: 'uikit-sei',
-        subTag: 'sendSEI',
+        tag: 'uikit',
+        subTag: 'core data',
       );
     }
 

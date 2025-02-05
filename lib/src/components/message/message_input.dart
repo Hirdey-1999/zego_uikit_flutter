@@ -190,7 +190,7 @@ class _ZegoInRoomMessageInputState extends State<ZegoInRoomMessageInput> {
     if (textController.text.isEmpty) {
       ZegoLoggerService.logInfo(
         'message is empty',
-        tag: 'uikit-component',
+        tag: 'uikit',
         subTag: 'in room message input',
       );
       return;

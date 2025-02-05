@@ -12,9 +12,6 @@ typedef ZegoAudioVideoViewForegroundBuilder = Widget Function(
   BuildContext context,
   Size size,
   ZegoUIKitUser? user,
-
-  /// {ZegoViewBuilderMapExtraInfoKey:value}
-  /// final value = extraInfo[ZegoViewBuilderMapExtraInfoKey.key.name]
   Map<String, dynamic> extraInfo,
 );
 
@@ -23,9 +20,6 @@ typedef ZegoAudioVideoViewBackgroundBuilder = Widget Function(
   BuildContext context,
   Size size,
   ZegoUIKitUser? user,
-
-  /// {ZegoViewBuilderMapExtraInfoKey:value}
-  /// final value = extraInfo[ZegoViewBuilderMapExtraInfoKey.key.name]
   Map<String, dynamic> extraInfo,
 );
 
@@ -40,7 +34,6 @@ typedef ZegoAudioVideoViewFilter = List<ZegoUIKitUser> Function(
 enum ZegoViewBuilderMapExtraInfoKey {
   isScreenSharingView,
   isFullscreen,
-  isVirtualUser,
 }
 
 enum ZegoShowToggleFullscreenButtonMode {
@@ -56,7 +49,6 @@ extension ZegoViewBuilderMapExtraInfoKeyExtension
       ZegoViewBuilderMapExtraInfoKey.isScreenSharingView:
           'is_screen_sharing_view',
       ZegoViewBuilderMapExtraInfoKey.isFullscreen: 'is_fullscreen',
-      ZegoViewBuilderMapExtraInfoKey.isVirtualUser: 'is_virtual_user',
     };
 
     return mapValues[this]!;

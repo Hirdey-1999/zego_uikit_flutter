@@ -4,28 +4,6 @@ import 'package:flutter/material.dart';
 // Project imports:
 import 'package:zego_uikit/zego_uikit.dart';
 
-class ZegoStartInvitationButtonResult {
-  final String invitationID;
-  final String code;
-  final String message;
-  final List<String> errorInvitees;
-
-  ZegoStartInvitationButtonResult({
-    required this.invitationID,
-    required this.code,
-    required this.message,
-    required this.errorInvitees,
-  });
-
-  @override
-  toString() {
-    return 'code:$code, '
-        'message:$message, '
-        'invitation id:$invitationID, '
-        'error invitees:$errorInvitees';
-  }
-}
-
 /// @nodoc
 class ZegoStartInvitationButton extends StatefulWidget {
   const ZegoStartInvitationButton({
@@ -48,18 +26,16 @@ class ZegoStartInvitationButton extends StatefulWidget {
     this.padding,
     this.onWillPressed,
     this.onPressed,
-    this.networkLoadingConfig,
     this.clickableTextColor = Colors.black,
     this.unclickableTextColor = Colors.black,
     this.clickableBackgroundColor = Colors.transparent,
     this.unclickableBackgroundColor = Colors.transparent,
   }) : super(key: key);
-  final bool isAdvancedMode;
-
   final int invitationType;
   final List<String> invitees;
   final String data;
   final int timeoutSeconds;
+  final bool isAdvancedMode;
   final ZegoNotificationConfig? notificationConfig;
 
   final String? text;
@@ -79,14 +55,17 @@ class ZegoStartInvitationButton extends StatefulWidget {
   final Future<bool> Function()? onWillPressed;
 
   ///  You can do what you want after pressed.
-  final void Function(ZegoStartInvitationButtonResult result)? onPressed;
+  final void Function(
+    String code,
+    String message,
+    String invitationID,
+    List<String> errorUsers,
+  )? onPressed;
 
   final Color? clickableTextColor;
   final Color? unclickableTextColor;
   final Color? clickableBackgroundColor;
   final Color? unclickableBackgroundColor;
-
-  final ZegoNetworkLoadingConfig? networkLoadingConfig;
 
   @override
   State<ZegoStartInvitationButton> createState() =>
@@ -113,7 +92,6 @@ class _ZegoStartInvitationButtonState extends State<ZegoStartInvitationButton> {
       unclickableTextColor: widget.unclickableTextColor,
       clickableBackgroundColor: widget.clickableBackgroundColor,
       unclickableBackgroundColor: widget.unclickableBackgroundColor,
-      networkLoadingConfig: widget.networkLoadingConfig,
     );
   }
 
@@ -122,44 +100,32 @@ class _ZegoStartInvitationButtonState extends State<ZegoStartInvitationButton> {
     if (!canSendInvitation) {
       ZegoLoggerService.logInfo(
         'onWillPressed stop click process',
-        tag: 'uikit-plugin-signaling',
+        tag: 'call',
         subTag: 'start invitation button',
       );
 
       return;
     }
 
-    final sendResult = widget.isAdvancedMode
-        ? ZegoUIKit().getSignalingPlugin().sendAdvanceInvitation(
-              inviterID: ZegoUIKit().getLocalUser().id,
-              inviterName: ZegoUIKit().getLocalUser().name,
-              invitees: widget.invitees,
-              timeout: widget.timeoutSeconds,
-              type: widget.invitationType,
-              data: widget.data,
-              zegoNotificationConfig: widget.notificationConfig,
-            )
-        : ZegoUIKit().getSignalingPlugin().sendInvitation(
-              inviterID: ZegoUIKit().getLocalUser().id,
-              inviterName: ZegoUIKit().getLocalUser().name,
-              invitees: widget.invitees,
-              timeout: widget.timeoutSeconds,
-              type: widget.invitationType,
-              data: widget.data,
-              isAdvancedMode: widget.isAdvancedMode,
-              zegoNotificationConfig: widget.notificationConfig,
-            );
-    return sendResult.then(
-      (result) {
-        widget.onPressed?.call(
-          ZegoStartInvitationButtonResult(
-            code: result.error?.code ?? '',
-            message: result.error?.message ?? '',
-            invitationID: result.invitationID,
-            errorInvitees: result.errorInvitees.keys.toList(),
-          ),
-        );
-      },
-    );
+    await ZegoUIKit()
+        .getSignalingPlugin()
+        .sendInvitation(
+          inviterID: ZegoUIKit().getLocalUser().id,
+          inviterName: ZegoUIKit().getLocalUser().name,
+          invitees: widget.invitees,
+          timeout: widget.timeoutSeconds,
+          type: widget.invitationType,
+          data: widget.data,
+          isAdvancedMode: widget.isAdvancedMode,
+          zegoNotificationConfig: widget.notificationConfig,
+        )
+        .then((result) {
+      widget.onPressed?.call(
+        result.error?.code ?? '',
+        result.error?.message ?? '',
+        result.invitationID,
+        result.errorInvitees.keys.toList(),
+      );
+    });
   }
 }

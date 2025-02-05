@@ -21,17 +21,9 @@ class ZegoBeautyPluginCore {
   }
 
   /// init
-  Future<void> init({
-    required int appID,
-    String appSign = '',
-    String licence = '',
-  }) async {
+  Future<void> init({required int appID, String appSign = ''}) async {
     // initEvent();
-    coreData.create(
-      appID: appID,
-      appSign: appSign,
-      licence: licence,
-    );
+    coreData.create(appID: appID, appSign: appSign);
   }
 
   /// uninit

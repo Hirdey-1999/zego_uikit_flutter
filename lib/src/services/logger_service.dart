@@ -13,35 +13,30 @@ mixin ZegoLoggerService {
       return;
     }
 
-    try {
-      await FlutterLogs.initLogs(
-              logLevelsEnabled: [
-                LogLevel.INFO,
-                LogLevel.WARNING,
-                LogLevel.ERROR,
-                LogLevel.SEVERE
-              ],
-              timeStampFormat: TimeStampFormat.TIME_FORMAT_24_FULL,
-              directoryStructure: DirectoryStructure.SINGLE_FILE_FOR_DAY,
-              logTypesEnabled: ['device', 'network', 'errors'],
-              logFileExtension: LogFileExtension.LOG,
-              logsWriteDirectoryName: 'zego_prebuilt/$folderName',
-              logsExportDirectoryName: 'zego_prebuilt/$folderName/Exported',
-              debugFileOperations: true,
-              isDebuggable: true)
-          .then((value) {
-        FlutterLogs.setDebugLevel(0);
-        FlutterLogs.logInfo(
-          'uikit',
-          'log init done',
-          '==========================================',
-        );
-      });
-
-      isZegoLoggerInit = true;
-    } catch (e) {
-      debugPrint('uikit init logger error:$e');
-    }
+    isZegoLoggerInit = true;
+    return FlutterLogs.initLogs(
+            logLevelsEnabled: [
+              LogLevel.INFO,
+              LogLevel.WARNING,
+              LogLevel.ERROR,
+              LogLevel.SEVERE
+            ],
+            timeStampFormat: TimeStampFormat.TIME_FORMAT_24_FULL,
+            directoryStructure: DirectoryStructure.SINGLE_FILE_FOR_DAY,
+            logTypesEnabled: ['device', 'network', 'errors'],
+            logFileExtension: LogFileExtension.LOG,
+            logsWriteDirectoryName: 'zego_prebuilt/$folderName',
+            logsExportDirectoryName: 'zego_prebuilt/$folderName/Exported',
+            debugFileOperations: true,
+            isDebuggable: true)
+        .then((value) {
+      FlutterLogs.setDebugLevel(0);
+      FlutterLogs.logInfo(
+        'log',
+        'init',
+        '==========================================$value',
+      );
+    });
   }
 
   Future<void> clearLogs() async {

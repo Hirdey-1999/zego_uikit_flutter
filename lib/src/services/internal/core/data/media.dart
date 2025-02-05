@@ -1,6 +1,5 @@
 // Dart imports:
 import 'dart:async';
-import 'dart:io' show Platform;
 
 // Flutter imports:
 import 'package:flutter/foundation.dart';
@@ -59,8 +58,7 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
   void init() {
     ZegoLoggerService.logInfo(
       'init media',
-      tag: 'uikit-media',
-      subTag: 'init',
+      subTag: 'media',
     );
 
     mediaListStreamCtrl ??=
@@ -70,8 +68,7 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
   void uninit() {
     ZegoLoggerService.logInfo(
       'uninit media',
-      tag: 'uikit-media',
-      subTag: 'uninit',
+      subTag: 'media',
     );
 
     mediaListStreamCtrl?.close();
@@ -109,18 +106,18 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
   Future<void> clear() async {
     ZegoLoggerService.logInfo(
       'clear',
-      tag: 'uikit-media',
-      subTag: 'clear',
+      tag: 'uikit core data',
+      subTag: 'media',
     );
+
+    await stop();
 
     if (null != _currentPlayer) {
       ZegoLoggerService.logInfo(
         'destroy media player',
-        tag: 'uikit-media',
-        subTag: 'clear',
+        tag: 'uikit core data',
+        subTag: 'media',
       );
-
-      await stop();
 
       await ZegoExpressEngine.instance.destroyMediaPlayer(_currentPlayer!);
       _currentPlayer = null;
@@ -133,17 +130,17 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
     bool autoStart = true,
   }) async {
     ZegoLoggerService.logInfo(
-      'path:$filePathOrURL, repeat:$enableRepeat, auto start:$autoStart',
-      tag: 'uikit-media',
-      subTag: 'play',
+      'play media, path:$filePathOrURL, repeat:$enableRepeat, auto start:$autoStart',
+      tag: 'uikit core data',
+      subTag: 'media',
     );
 
     if (ZegoUIKitMediaPlayState.playing == stateNotifier.value ||
         ZegoUIKitMediaPlayState.pausing == stateNotifier.value) {
       ZegoLoggerService.logInfo(
-        'exist playing source:${stateNotifier.value}',
-        tag: 'uikit-media',
-        subTag: 'play',
+        'playMedia exist playing source:${stateNotifier.value}',
+        tag: 'uikit core data',
+        subTag: 'media',
       );
       await stop();
     }
@@ -156,15 +153,15 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
 
     ZegoLoggerService.logInfo(
       'try load resource:$filePathOrURL',
-      tag: 'uikit-media',
-      subTag: 'play',
+      tag: 'uikit core data',
+      subTag: 'media',
     );
     final loadResult = await _currentPlayer!.loadResource(filePathOrURL);
     if (ZegoErrorCode.CommonSuccess != loadResult.errorCode) {
       ZegoLoggerService.logInfo(
         'loadResource, code:${loadResult.errorCode}',
-        tag: 'uikit-media',
-        subTag: 'play',
+        tag: 'uikit core data',
+        subTag: 'media',
       );
       return ZegoUIKitMediaPlayResult(
         errorCode: loadResult.errorCode,
@@ -186,8 +183,8 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
     } else {
       ZegoLoggerService.logInfo(
         'parse media extension error, path:$filePathOrURL, extension:$extension',
-        tag: 'uikit-media',
-        subTag: 'play',
+        tag: 'uikit core data',
+        subTag: 'media',
       );
       typeNotifier.value = ZegoUIKitMediaType.unknown;
     }
@@ -208,8 +205,8 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
   Future<void> start() async {
     ZegoLoggerService.logInfo(
       'try start media..',
-      tag: 'uikit-media',
-      subTag: 'start',
+      tag: 'uikit core data',
+      subTag: 'media',
     );
 
     await _currentPlayer?.start();
@@ -217,16 +214,16 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
 
     ZegoLoggerService.logInfo(
       'start done',
-      tag: 'uikit-media',
-      subTag: 'start',
+      tag: 'uikit core data',
+      subTag: 'media',
     );
   }
 
   Future<void> stop() async {
     ZegoLoggerService.logInfo(
-      'try stop',
-      tag: 'uikit-media',
-      subTag: 'stop',
+      'stopMedia',
+      tag: 'uikit core data',
+      subTag: 'media',
     );
 
     if (ZegoUIKitMediaPlayState.playing == stateNotifier.value) {
@@ -247,25 +244,25 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
 
     ZegoLoggerService.logInfo(
       'stopMedia done',
-      tag: 'uikit-media',
-      subTag: 'stop',
+      tag: 'uikit core data',
+      subTag: 'media',
     );
   }
 
   Future<void> pause() async {
     if (ZegoUIKitMediaPlayState.pausing == stateNotifier.value) {
       ZegoLoggerService.logInfo(
-        'state(${stateNotifier.value}) is not pausing',
-        tag: 'uikit-media',
-        subTag: 'pause',
+        'pauseMedia, state(${stateNotifier.value}) is not pausing',
+        tag: 'uikit core data',
+        subTag: 'media',
       );
       return;
     }
 
     ZegoLoggerService.logInfo(
       'pauseMedia',
-      tag: 'uikit-media',
-      subTag: 'pause',
+      tag: 'uikit core data',
+      subTag: 'media',
     );
 
     _updatePlayStateWithSync(ZegoUIKitMediaPlayState.pausing);
@@ -276,17 +273,17 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
   Future<void> resume() async {
     if (ZegoUIKitMediaPlayState.playing == stateNotifier.value) {
       ZegoLoggerService.logInfo(
-        'state(${stateNotifier.value}) is playing',
-        tag: 'uikit-media',
-        subTag: 'resume',
+        'resumeMedia, state(${stateNotifier.value}) is playing',
+        tag: 'uikit core data',
+        subTag: 'media',
       );
       return;
     }
 
     ZegoLoggerService.logInfo(
       'resumeMedia',
-      tag: 'uikit-media',
-      subTag: 'resume',
+      tag: 'uikit core data',
+      subTag: 'media',
     );
 
     _updatePlayStateWithSync(ZegoUIKitMediaPlayState.playing);
@@ -297,8 +294,8 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
   Future<ZegoUIKitMediaSeekToResult> seekTo(int millisecond) async {
     ZegoLoggerService.logInfo(
       'media seek to $millisecond',
-      tag: 'uikit-media',
-      subTag: 'seekTo',
+      tag: 'uikit core data',
+      subTag: 'media',
     );
 
     /// change local first, sdk callback will correct if failed
@@ -307,8 +304,8 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
     final seekResult = await _currentPlayer?.seekTo(millisecond);
     ZegoLoggerService.logInfo(
       'media seek result:${seekResult?.errorCode}',
-      tag: 'uikit-media',
-      subTag: 'seekTo',
+      tag: 'uikit core data',
+      subTag: 'media',
     );
 
     final seekResultErrorCode =
@@ -321,19 +318,19 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
     );
   }
 
-  Future<void> setVolume(int volume, bool isSyncToRemote) async {
+  Future<void> setVolume(int volume, bool isSync) async {
     if (volume == volumeNotifier.value) {
       return;
     }
 
     ZegoLoggerService.logInfo(
-      'set media volume:$volume, isSyncToRemote:$isSyncToRemote',
-      tag: 'uikit-media',
-      subTag: 'setVolume',
+      'set media volume:$volume, isSync:$isSync',
+      tag: 'uikit core data',
+      subTag: 'media',
     );
     volumeNotifier.value = volume;
 
-    return isSyncToRemote
+    return isSync
         ? _currentPlayer?.setVolume(volume)
         : _currentPlayer?.setPlayVolume(volume);
   }
@@ -348,8 +345,8 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
     if (null != _currentPlayer) {
       ZegoLoggerService.logInfo(
         'mute local, mute:$mute',
-        tag: 'uikit-media',
-        subTag: 'muteLocal',
+        tag: 'uikit core data',
+        subTag: 'media',
       );
 
       _currentPlayer?.muteLocal(mute);
@@ -358,8 +355,8 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
       final mediaOwner = ZegoUIKitCore.shared.coreData.getUser(_ownerID ?? '');
       ZegoLoggerService.logInfo(
         'mute remote, mute:$mute, owner:$mediaOwner',
-        tag: 'uikit-media',
-        subTag: 'muteLocal',
+        tag: 'uikit core data',
+        subTag: 'media',
       );
       ZegoExpressEngine.instance.mutePlayStreamAudio(
         mediaOwner.auxChannel.streamID,
@@ -392,9 +389,9 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
     int errorCode,
   ) {
     ZegoLoggerService.logInfo(
-      'state:$state, errorCode:$errorCode',
-      tag: 'uikit-media',
-      subTag: 'onMediaPlayerStateUpdate',
+      'onMediaPlayerStateUpdate state:$state, errorCode:$errorCode',
+      tag: 'uikit core data',
+      subTag: 'media',
     );
 
     _updatePlayStateWithSync(ZegoUIKitMediaPlayStateExtension.fromZego(state));
@@ -406,9 +403,9 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
     ZegoMediaPlayerNetworkEvent networkEvent,
   ) {
     ZegoLoggerService.logInfo(
-      'networkEvent:$networkEvent',
-      tag: 'uikit-media',
-      subTag: 'onMediaPlayerNetworkEvent',
+      'onMediaPlayerNetworkEvent $networkEvent',
+      tag: 'uikit core data',
+      subTag: 'media',
     );
   }
 
@@ -428,8 +425,8 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
   ) {
     // ZegoLoggerService.logInfo(
     //   'onMediaPlayerRecvSEI $data',
-    //   tag: 'uikit-media',
-    //   subTag: 'core data media',
+    //   tag: 'uikit core data',
+    //   subTag: 'media',
     // );
   }
 
@@ -450,9 +447,9 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
     List<double> spectrumList,
   ) {
     ZegoLoggerService.logInfo(
-      'spectrumList:$spectrumList',
-      tag: 'uikit-media',
-      subTag: 'onMediaPlayerFrequencySpectrumUpdate',
+      'onMediaPlayerFrequencySpectrumUpdate $spectrumList',
+      tag: 'uikit core data',
+      subTag: 'media',
     );
   }
 
@@ -462,17 +459,17 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
     ZegoMediaPlayerFirstFrameEvent event,
   ) {
     ZegoLoggerService.logInfo(
-      'event:$event',
-      tag: 'uikit-media',
-      subTag: 'onMediaPlayerFirstFrameEvent',
+      'onMediaPlayerFirstFrameEvent $event',
+      tag: 'uikit core data',
+      subTag: 'media',
     );
   }
 
   void onRemoteMediaTypeUpdate(String streamID, int remoteMediaType) {
     ZegoLoggerService.logInfo(
-      'streamID:$streamID, remoteMediaType:$remoteMediaType',
-      tag: 'uikit-media',
-      subTag: 'onRemoteMediaTypeUpdate',
+      'onRemoteMediaTypeUpdate $remoteMediaType',
+      tag: 'uikit core data',
+      subTag: 'media',
     );
 
     typeNotifier.value = ZegoUIKitMediaType.values[remoteMediaType];
@@ -495,8 +492,7 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
     String userID,
     Map<String, dynamic> sei,
   ) {
-    _ownerID ??=
-        ZegoUIKitCore.shared.coreData.streamDic[streamID]?.userID ?? '';
+    _ownerID ??= ZegoUIKitCore.shared.coreData.streamDic[streamID] ?? '';
     final isLocalMedia = _ownerID == ZegoUIKitCore.shared.coreData.localUser.id;
 
     if (sei.keys.contains(ZegoUIKitSEIDefines.keyMediaStatus)) {
@@ -561,86 +557,40 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
     List<String>? allowedExtensions,
   }) async {
     ZegoLoggerService.logInfo(
+      'pick media files, '
       'allowMultiple:$allowMultiple, '
       'allowedExtensions:$allowedExtensions',
-      tag: 'uikit-media',
-      subTag: 'pickMediaFiles',
+      tag: 'uikit core data',
+      subTag: 'media',
     );
 
     try {
-      final storageStatus = await requestPermission(Permission.storage);
-      if (!storageStatus) {
-        ZegoLoggerService.logInfo(
-          'Warn: Permission.storage not granted, $storageStatus',
-          tag: 'uikit-media',
-          subTag: 'pickMediaFiles',
-        );
-        if (Platform.isAndroid) {
-          ZegoLoggerService.logInfo(
-            'Warn: On Android TIRAMISU and higher this permission is deprecated and always returns `PermissionStatus.denied`',
-            tag: 'uikit-media',
-            subTag: 'pickMediaFiles',
-          );
-        }
-      }
-
-      if (Platform.isAndroid) {
-        final status = await Permission.photos.request();
-        if (status != PermissionStatus.granted) {
-          ZegoLoggerService.logInfo(
-            'Error: Permission.photos not granted, $status',
-            tag: 'uikit-media',
-            subTag: 'pickMediaFiles',
-          );
-        }
-      }
-
-      if (Platform.isAndroid) {
-        final status = await Permission.audio.request();
-        if (status != PermissionStatus.granted) {
-          ZegoLoggerService.logInfo(
-            'Error: Permission.audio not granted, $status',
-            tag: 'uikit-media',
-            subTag: 'pickMediaFiles',
-          );
-        }
-      }
-      if (Platform.isAndroid) {
-        final status = await Permission.videos.request();
-        if (status != PermissionStatus.granted) {
-          ZegoLoggerService.logInfo(
-            'Error: Permission.videos not granted, $status',
-            tag: 'uikit-media',
-            subTag: 'pickMediaFiles',
-          );
-        }
-      }
-
+      await requestPermission(Permission.storage);
       final pickFilesResult = (await FilePicker.platform.pickFiles(
             type: null == allowedExtensions ? FileType.media : FileType.custom,
             allowMultiple: allowMultiple,
             allowedExtensions: allowedExtensions,
             onFileLoading: (p0) {
               ZegoLoggerService.logInfo(
-                'onFileLoading:$p0,${DateTime.now().millisecondsSinceEpoch}',
-                tag: 'uikit-media',
-                subTag: 'pickMediaFiles',
+                'pick files onFileLoading:$p0,${DateTime.now().millisecondsSinceEpoch}',
+                tag: 'uikit core data',
+                subTag: 'media',
               );
             },
           ))
               ?.files ??
           [];
       ZegoLoggerService.logInfo(
-        'result: $pickFilesResult, ${DateTime.now().millisecondsSinceEpoch}',
-        tag: 'uikit-media',
-        subTag: 'pickMediaFiles',
+        'pick files: $pickFilesResult, ${DateTime.now().millisecondsSinceEpoch}',
+        tag: 'uikit core data',
+        subTag: 'media',
       );
       return pickFilesResult;
     } on PlatformException catch (e) {
       ZegoLoggerService.logInfo(
-        'unsupported operation $e',
-        tag: 'uikit-media',
-        subTag: 'pickMediaFiles',
+        'pick files Unsupported operation $e',
+        tag: 'uikit core data',
+        subTag: 'media',
       );
 
       ZegoUIKitCore.shared.error.errorStreamCtrl?.add(ZegoUIKitError(
@@ -650,9 +600,9 @@ class ZegoUIKitCoreDataMediaImpl extends ZegoUIKitMediaEventInterface {
       ));
     } catch (e) {
       ZegoLoggerService.logInfo(
-        'exception:$e',
-        tag: 'uikit-media',
-        subTag: 'pickMediaFiles',
+        'pick files exception:$e',
+        tag: 'uikit core data',
+        subTag: 'media',
       );
 
       ZegoUIKitCore.shared.error.errorStreamCtrl?.add(ZegoUIKitError(

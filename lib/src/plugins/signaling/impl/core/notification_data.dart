@@ -25,8 +25,8 @@ mixin ZegoSignalingPluginCoreNotificationData {
   }) {
     ZegoLoggerService.logInfo(
       'enable notify when app is in the background or quit: $enabled',
-      tag: 'uikit-plugin-signaling',
-      subTag: 'notification data',
+      tag: 'uikit',
+      subTag: 'signaling notification data',
     );
     notifyWhenAppIsInTheBackgroundOrQuit = enabled;
 

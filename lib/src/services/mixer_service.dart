@@ -5,7 +5,6 @@ mixin ZegoMixerService {
     String roomID,
     String userID, {
     String userName = '',
-    PlayerStateUpdateCallback? onPlayerStateUpdated,
   }) async {
     return ZegoUIKitCore.shared.startPlayAnotherRoomAudioVideo(
       roomID,
@@ -26,13 +25,12 @@ mixin ZegoMixerService {
     return ZegoUIKitCore.shared.stopMixerTask(task);
   }
 
-  /// *[userSoundIDs], a map<user id, sound id>
+  /// [userSoundIDs] is a map<user id, sound id>
   Future<void> startPlayMixAudioVideo(
     String mixerID,
     List<ZegoUIKitUser> users,
-    Map<String, int> userSoundIDs, {
-    PlayerStateUpdateCallback? onPlayerStateUpdated,
-  }) async {
+    Map<String, int> userSoundIDs,
+  ) async {
     return ZegoUIKitCore.shared.startPlayMixAudioVideo(
       mixerID,
       users.map((e) => ZegoUIKitCoreUser(e.id, e.name)).toList(),

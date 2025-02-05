@@ -1,210 +1,8 @@
-## 2.28.5
-
-- Bugs
-  - Fix the occasional fail of enableCustomVideoProcessing
-
-## 2.28.4
-
-- Support init without creating express engine; support join room without initiating entry.
-
-## 2.28.3
-
-- Fix bugs
-
-## 2.28.2
-
-- Features
-  - Add animation effect on camera flip
-
-## 2.28.1
-
-- Fix screen-sharing outside the app, remote pull-based streaming has no sound
-
-## 2.28.0
-
-- Features
-  - Add data analyze
-  - Add iOS PIP related basic functions
-- Bugs
-  - Fix some issues with render iOS platform view
-  - Fix the issue of media player moving out of range
-  - ZegoUIKitMediaPlayer's API had changed
-  - Fix the issue not publish/play stream where the camera is not turned on on iOS when enable platform view(which used by PIP now)
-  - Fix the issue of audio video view UI exception in audio mode
-  - Fix crash on android virtual machine
-- Update dependency
-
-## 2.27.20
-
-- Fix Bugs
-
-## 2.27.19
-
-- Update dependency
-
-## 2.27.18
-
-- Add iOS data analyze
-
-## 2.27.17
-
-- Add data analyze
-  
-## 2.27.16
-
-- Add some logs
-
-## 2.27.15
-
-- Update dependency
-
-## 2.27.14
-
-- Update dependency
-
-## 2.27.13
-
-- Update dependency
-
-## 2.27.12
-
-- Add PIP enum defines
-
-## 2.27.11
-
-- Update dependency
-
-## 2.27.10
-
-- Update dependency
-
-## 2.27.9
-
-- Bugs
-  - Fix the issue that the screen video window on this side occasionally appears not closed after remote screen-sharing is closed
-
-## 2.27.8
-
-- Bugs
-  - Fix the issue of missing type of user state event in normal call scenario
-
-## 2.27.7
-
-- Bugs
-  - Fix the issue where the stop button cannot be clicked in the screen sharing window
-
-## 2.27.6
-
-- Bugs
-  - Fix offline call from web failure issue
-
-## 2.27.5
-
-- Update dependency
-
-## 2.27.4
-
-- Bugs
-  - Fix offline call from web failure issue
-
-## 2.27.2
-
-- Optimize audio-video view play outside the room
-  - Add resolution configuration, default is 180p
-  - Optimize the automatic play stream strategy, only play stream is available in the visible area.
-
-## 2.27.1
-
-- Fix the issue startPlayAllAudioVideo failed after stopPlayAllAudioVideo
-
-## 2.27.0
-
-- Add audio-video view play outside the room
-
-## 2.26.1
-
-- Update some internal variables
-
-## 2.26.0
-
-- Support clear messages
-
-## 2.25.3
-
-- Add engine create notifier.
-
-## 2.25.2
-
-- Update dependency
-
-## 2.25.1
-
-- Update dependency
-
-## 2.25.0
-
-- Features
-  - Support login by token
-
-## 2.24.4
-
-- Update dependency.
-
-## 2.24.3
-
-- Update log
-
-## 2.24.2
-
-- Modify the barrage messages callback to only return the latest messages.
-
-## 2.24.1
-
-- add `customData` in `ZegoAcceptInvitationButton`
-
-## 2.24.0
-
-- Support sending and receiving barrage messages with
-
-## 2.23.0
-
-- Update dependency.
-- Support for displaying virtual users
-
-## 2.22.9
-
-- Update dependency.
-
-## 2.22.8
-
-- Update dependency.
-
-## 2.22.7
-
-- Update dependency.
-
-## 2.22.6
-
-- Bugs
-  - Fix namespace error after grade v8.0
-
-## 2.22.5
-
-- Update dependency.
-
-## 2.22.4
-
-- Update dependency.
-
-## 2.22.3
-
-- Update dependency.
-
 ## 2.22.2
 
 - Update doc.
 
-## 2.22.1
+- ## 2.22.1
 
 - Update doc.
 
@@ -238,15 +36,15 @@
 
 ## 2.20.0
 
-- update call button.
+ - update call button.
 
 ## 2.19.0
 
-- update express deps.
+ - update express deps.
 
 ## 2.18.9
 
-- fix screensharing issue
+ - fix screensharing issue
 
 ## 2.18.8
 
@@ -614,6 +412,7 @@
 ## 2.5.1
 
 - Update dependencies.
+
 - ## 2.5.0
 - Supports advance beauty.
 

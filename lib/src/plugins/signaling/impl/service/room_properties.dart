@@ -44,14 +44,10 @@ mixin ZegoUIKitRoomAttributesPluginService {
     required String roomID,
     required List<String> keys,
     bool isForce = false,
-    bool showErrorLog = true,
   }) async {
-    return ZegoPluginAdapter().signalingPlugin!.deleteRoomProperties(
-          roomID: roomID,
-          keys: keys,
-          isForce: isForce,
-          showErrorLog: showErrorLog,
-        );
+    return ZegoPluginAdapter()
+        .signalingPlugin!
+        .deleteRoomProperties(roomID: roomID, keys: keys, isForce: isForce);
   }
 
   /// begin room properties in batch operation

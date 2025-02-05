@@ -21,34 +21,28 @@ enum AudioVideoViewFullScreeMode {
 }
 
 enum ZegoAudioVideoContainerSource {
-  /// who in stream list
   audioVideo,
   screenSharing,
-
-  /// who in room
   user,
-  virtualUser,
 }
 
 /// container of audio video view,
 /// it will layout views by layout mode and config
 class ZegoAudioVideoContainer extends StatefulWidget {
-  const ZegoAudioVideoContainer({
-    Key? key,
-    required this.layout,
-    this.foregroundBuilder,
-    this.backgroundBuilder,
-    this.sortAudioVideo,
-    this.filterAudioVideo,
-    this.avatarConfig,
-    this.screenSharingViewController,
-    this.virtualUsersNotifier,
-    this.sources = const [
-      ZegoAudioVideoContainerSource.audioVideo,
-      ZegoAudioVideoContainerSource.screenSharing,
-    ],
-    this.onUserListUpdated,
-  }) : super(key: key);
+  const ZegoAudioVideoContainer(
+      {Key? key,
+      required this.layout,
+      this.foregroundBuilder,
+      this.backgroundBuilder,
+      this.sortAudioVideo,
+      this.filterAudioVideo,
+      this.avatarConfig,
+      this.screenSharingViewController,
+      this.sources = const [
+        ZegoAudioVideoContainerSource.audioVideo,
+        ZegoAudioVideoContainerSource.screenSharing,
+      ]})
+      : super(key: key);
 
   final ZegoLayout layout;
 
@@ -71,10 +65,6 @@ class ZegoAudioVideoContainer extends StatefulWidget {
 
   final List<ZegoAudioVideoContainerSource> sources;
 
-  final ValueNotifier<List<ZegoUIKitUser>>? virtualUsersNotifier;
-
-  final void Function(List<ZegoUIKitUser> userList)? onUserListUpdated;
-
   @override
   State<ZegoAudioVideoContainer> createState() =>
       _ZegoAudioVideoContainerState();
@@ -82,7 +72,6 @@ class ZegoAudioVideoContainer extends StatefulWidget {
 
 class _ZegoAudioVideoContainerState extends State<ZegoAudioVideoContainer> {
   List<ZegoUIKitUser> userList = [];
-  List<ZegoUIKitUser> virtualUsers = [];
   List<StreamSubscription<dynamic>?> subscriptions = [];
 
   var defaultScreenSharingViewController = ZegoScreenSharingViewController();
@@ -100,7 +89,6 @@ class _ZegoAudioVideoContainerState extends State<ZegoAudioVideoContainer> {
     }
 
     if (widget.sources.contains(ZegoAudioVideoContainerSource.user)) {
-      onUserListUpdated(ZegoUIKit().getAllUsers());
       subscriptions.add(
         ZegoUIKit().getUserListStream().listen(onUserListUpdated),
       );
@@ -115,15 +103,6 @@ class _ZegoAudioVideoContainerState extends State<ZegoAudioVideoContainer> {
         ZegoUIKit().getScreenSharingListStream().listen(onStreamListUpdated),
       );
     }
-    if (widget.sources.contains(ZegoAudioVideoContainerSource.virtualUser)) {
-      onVirtualUsersUpdated();
-      widget.virtualUsersNotifier?.addListener(onVirtualUsersUpdated);
-    }
-
-    if (widget.sources.contains(ZegoAudioVideoContainerSource.audioVideo) ||
-        widget.sources.contains(ZegoAudioVideoContainerSource.screenSharing)) {
-      onStreamListUpdated(ZegoUIKit().getAudioVideoList());
-    }
   }
 
   @override
@@ -133,7 +112,6 @@ class _ZegoAudioVideoContainerState extends State<ZegoAudioVideoContainer> {
     for (final subscription in subscriptions) {
       subscription?.cancel();
     }
-    widget.virtualUsersNotifier?.removeListener(onVirtualUsersUpdated);
   }
 
   @override
@@ -218,14 +196,6 @@ class _ZegoAudioVideoContainerState extends State<ZegoAudioVideoContainer> {
     });
   }
 
-  void onVirtualUsersUpdated() {
-    virtualUsers = widget.virtualUsersNotifier?.value ?? [];
-
-    setState(() {
-      updateUserList();
-    });
-  }
-
   void updateUserList() {
     final streamUsers =
         ZegoUIKit().getAudioVideoList() + ZegoUIKit().getScreenSharingList();
@@ -258,23 +228,6 @@ class _ZegoAudioVideoContainerState extends State<ZegoAudioVideoContainer> {
       });
     }
 
-    if (widget.sources.contains(ZegoAudioVideoContainerSource.virtualUser)) {
-      /// add in list even though use is not in stream
-      for (var virtualUser in virtualUsers) {
-        if (-1 != userList.indexWhere((e) => e.id == virtualUser.id)) {
-          /// in user list
-          continue;
-        }
-
-        if (-1 != streamUsers.indexWhere((e) => e.id == virtualUser.id)) {
-          /// in stream list
-          continue;
-        }
-
-        userList.add(virtualUser);
-      }
-    }
-
     userList =
         widget.sortAudioVideo?.call(List<ZegoUIKitUser>.from(userList)) ??
             userList;
@@ -282,7 +235,5 @@ class _ZegoAudioVideoContainerState extends State<ZegoAudioVideoContainer> {
     userList =
         widget.filterAudioVideo?.call(List<ZegoUIKitUser>.from(userList)) ??
             userList;
-
-    widget.onUserListUpdated?.call(List<ZegoUIKitUser>.from(userList));
   }
 }
